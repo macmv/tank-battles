@@ -33,7 +33,9 @@ public class Game {
     if (Gdx.input.isKeyPressed(Input.Keys.D)) {
       d.x += 1;
     }
-    player.move(d.nor(), delta);
+    if (!d.equals(Vector2.Zero)) {
+      player.move(d.nor(), delta);
+    }
     client.move(this, player);
   }
 

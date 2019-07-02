@@ -7,7 +7,6 @@ import net.macmv.tankbattles.render.Skin;
 
 public class Tank {
 
-
   public final boolean useTexture;
   private Weapon primary;
   private Weapon secondary;
@@ -41,27 +40,34 @@ public class Tank {
     if (rotation != rotationTarget) {
       float direction;
       int d = rotation - rotationTarget;
-      System.out.println("Rotating to " + rotation + ", target: " + rotationTarget + ", diff: " + d);
+      if(Math.abs(d) > 180) {
+        if(rotation > rotationTarget) {
+          d = -1 * ((360 - rotation) + rotationTarget);
+        }
+        else {
+          d = (360 - rotationTarget) + rotation;
+        }
+      }
       if (d > 0) {
         direction = -1;
       } else {
         direction = 1;
       }
-      if (rotation > 360 || rotation < -360) {
-        rotation = rotation % 360;
+      if (rotation < 0) {
+        rotation += 360;
       }
+      rotation = rotation % 360;
       rotation += direction * delta * 180; // rotate 180 per second
+      if (rotation > rotationTarget - 10 && rotation < rotationTarget + 10) { // close enough
+        rotation = rotationTarget;
+      }
       model.transform.getTranslation(tmp);
-      model.transform.setToRotation(Vector3.Y, rotation);
+      model.transform.setToRotation(Vector3.Y, rotation * -1 + 180);
       model.transform.setTranslation(tmp);
       model.calculateTransforms();
     }
     batch.render(model);
   }
-
-//  public ModelInstance getBaseModel() {
-//    return baseModel;
-//  }
 
   public ModelInstance getModel() {
     return model;

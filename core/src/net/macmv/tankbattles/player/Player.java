@@ -68,7 +68,7 @@ public class Player {
   }
 
   public void move(Vector2 d, float deltaTime) {
-    tank.rotate((int) d.angle());
+    tank.rotate((int) d.angle() + 90);
     updatePos(d.scl(deltaTime).add(pos));
   }
 
