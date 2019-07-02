@@ -1,0 +1,46 @@
+
+apply plugin: 'application'
+apply plugin: "java"
+
+mainClassName = "net.macmv.tankbattles.server.ServerMain"
+project.ext.mainClassName = "net.macmv.tankbattles.server.ServerMain"
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+compileJava {
+    compileJava.source = project.fileTree('src')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/grpc'
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+task dist(type: Jar) {
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compile.collect {zipTree(it)}}
+
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+}
+
+dist.dependsOn classes
+
+startScripts.enabled = true
+
+task tankBattlesServer(type: CreateStartScripts) {
+    mainClassName = 'net.macmv.tankbattles.server.ServerMain'
+    applicationName = 'tank-battles-server'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = startScripts.classpath
+}
+
+applicationDistribution.into('bin') {
+    from(tankBattlesServer)
+    fileMode = 0755
+}

@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "net.macmv.tankbattles.lib.proto";
+option java_outer_classname = "MainProto";
+option objc_class_prefix = "HLW";
+
+// all the things ingame
+service TankBattles {
+  rpc PlayerJoin (PlayerJoinReq) returns (PlayerJoinRes);
+  rpc PlayerMove (PlayerMoveReq) returns (PlayerMoveRes);
+}
+
+// sent once from new player
+message PlayerJoinReq {
+  int32 id = 1;
+  Tank tank = 2;
+}
+
+// sent to all players
+message PlayerJoinRes {
+  repeated Player player = 1;
+  int32 mapId = 2; // TODO: maps
+}
+
+// sent as often as possible, even if not moving
+message PlayerMoveReq {
+  Player player = 1;
+  Point newPos = 2;
+}
+
+// sent to all players about new positions as often as possible
+message PlayerMoveRes {
+  repeated Player player = 2;
+}
+
+// is a single user ingame
+message Player {
+  int32 id = 1;
+  Tank tank = 2;
+  Point pos = 3;
+}
+
+// can be user or AI in or out of game, like when building a new loadout
+
+// the weapon and base store current info, things like max health and total time to reload
+// are grabbed from a database of ids. This is to prevent people from having infinite reload
+message Tank {
+  Weapon primary = 1;
+  Weapon secondary = 2;
+  Base base = 3;
+  Skin skin = 4;
+
+  // all the weapon info
+  message Weapon {
+    int32 id = 1;
+    int32 clipReload = 2;
+    int32 singleReload = 3;
+  }
+
+  // drive base, so health/armor/speed
+  message Base {
+    int32 id = 1;
+    int32 health = 2;
+  }
+
+  // probably id for skin table
+  message Skin {
+    string name = 1;
+  }
+}
+
+// that's just a point
+message Point {
+  float x = 1;
+  float y = 2;
+}
