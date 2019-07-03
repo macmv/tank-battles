@@ -4,7 +4,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.render.Skin;
 
 public class Tank {
@@ -15,8 +14,6 @@ public class Tank {
   private Base base;
   private Skin skin;
   private ModelInstance model;
-  private int rotation = 0;
-  private int rotationTarget = 0;
 
   public Tank(Skin skin) {
     this(skin, true);
@@ -30,40 +27,7 @@ public class Tank {
     this.skin = skin;
   }
 
-  public void rotate(int degrees) {
-    rotationTarget = degrees % 360;
-  }
-
-  public void render(ModelBatch batch, float delta, Environment env) {
-    if (rotation != rotationTarget) {
-      float direction;
-      int d = rotation - rotationTarget;
-      if(Math.abs(d) > 180) {
-        if(rotation > rotationTarget) {
-          d = -1 * ((360 - rotation) + rotationTarget);
-        }
-        else {
-          d = (360 - rotationTarget) + rotation;
-        }
-      }
-      if (d > 0) {
-        direction = -1;
-      } else {
-        direction = 1;
-      }
-      if (rotation < 0) {
-        rotation += 360;
-      }
-      rotation = rotation % 360;
-      rotation += direction * delta * 180; // rotate 180 per second
-      if (rotation > rotationTarget - 5 && rotation < rotationTarget + 5) { // close enough
-        rotation = rotationTarget;
-      }
-      Vector3 translation = model.transform.getTranslation(Vector3.Zero);
-      model.transform.setToRotation(Vector3.Y, rotation * -1 + 180);
-      model.transform.setTranslation(translation);
-      model.calculateTransforms();
-    }
+  public void render(ModelBatch batch, Environment env) {
     batch.render(model, env);
   }
 

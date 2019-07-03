@@ -27,6 +27,7 @@ message PlayerJoinRes {
 message PlayerMoveReq {
   Player player = 1;
   Point newPos = 2;
+  int32 newDir = 3;
 }
 
 // sent to all players about new positions as often as possible
@@ -39,6 +40,7 @@ message Player {
   int32 id = 1;
   Tank tank = 2;
   Point pos = 3;
+  int32 direction = 4;
 }
 
 // can be user or AI in or out of game, like when building a new loadout

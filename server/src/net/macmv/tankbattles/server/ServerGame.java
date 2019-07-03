@@ -2,7 +2,6 @@ package net.macmv.tankbattles.server;
 
 import com.badlogic.gdx.math.Vector2;
 import net.macmv.tankbattles.lib.proto.PlayerMoveReq;
-import net.macmv.tankbattles.lib.proto.Point;
 import net.macmv.tankbattles.lib.proto.Tank;
 import net.macmv.tankbattles.player.Player;
 
@@ -38,6 +37,7 @@ public class ServerGame {
       lastMove.put(p.getId(), System.nanoTime());
       return true;
     }
+    System.out.println(p);
     Vector2 newPos = new Vector2(p.getPos().getX(), p.getPos().getY());
     Vector2 oldPos = players.get(p.getId()).getPos();
     float distance = newPos.dst(oldPos);

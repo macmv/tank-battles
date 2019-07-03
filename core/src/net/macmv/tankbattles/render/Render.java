@@ -58,9 +58,9 @@ public class Render {
 
     game.getTerrain().render(batch);
 
-    game.getPlayer().getTank().render(batch, delta, env);
+    game.getPlayer().getTank().render(batch, env);
     game.getPlayers().forEach((id, p) -> {
-      p.getTank().render(batch, delta, env);
+      p.getTank().render(batch, env);
     });
 
     batch.end();

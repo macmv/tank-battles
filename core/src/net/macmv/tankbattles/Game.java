@@ -37,7 +37,7 @@ public class Game {
       d.x += 1;
     }
     if (!d.equals(Vector2.Zero)) {
-      player.move(d.nor(), delta);
+      player.move(d, delta); // check move def to see why we don't call d.nor()
     }
     client.move(this, player);
   }
