@@ -1,5 +1,6 @@
 package net.macmv.tankbattles;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector2;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -32,7 +33,7 @@ public class TankBattlesClient {
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
-  public void move(Game game, Player player) {
+  public void move(Game game, Player player, AssetManager assetManager) {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     Player sentPlayer = player;
     Vector2 sentPos = sentPlayer.getPos();
@@ -59,8 +60,10 @@ public class TankBattlesClient {
       } else {
         if (hash.containsKey(p.getId())) {
           hash.get(p.getId()).updatePos(p.getPos());
-        } else {
-          hash.put(p.getId(), Player.fromProto(p));
+        } else { // new player
+          Player newPlayer = Player.fromProto(p);
+          newPlayer.loadAssets(assetManager);
+          hash.put(p.getId(), newPlayer);
         }
       }
     });

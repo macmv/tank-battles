@@ -22,7 +22,7 @@ public class Game {
     terrain = new Terrain(this, Terrain.Type.GRASS);
   }
 
-  public void update(float delta) {
+  public void update(float delta, AssetManager assetManager) {
     Vector2 d = new Vector2();
     if (Gdx.input.isKeyPressed(Input.Keys.W)) {
       d.y -= 1;
@@ -39,7 +39,7 @@ public class Game {
     if (!d.equals(Vector2.Zero)) {
       player.move(d, delta); // check move def to see why we don't call d.nor()
     }
-    client.move(this, player);
+    client.move(this, player, assetManager);
   }
 
   public Player getPlayer() {
@@ -54,15 +54,15 @@ public class Game {
     return terrain;
   }
 
-  public void loadAssets(AssetManager assetManager) {
-    player.loadAssets(assetManager);
-    players.forEach((id, p) -> p.loadAssets(assetManager));
+  public void requireAssets(AssetManager assetManager) {
+    player.requireAssets(assetManager);
+    players.forEach((id, p) -> p.requireAssets(assetManager));
     terrain.loadAssets(assetManager);
   }
 
-  public void finishLoading(AssetManager assetManager) {
-    player.finishLoading(assetManager);
-    players.forEach((id, p) -> p.finishLoading(assetManager));
+  public void loadAssets(AssetManager assetManager) {
+    player.loadAssets(assetManager);
+    players.forEach((id, p) -> p.loadAssets(assetManager));
     terrain.finishLoading(assetManager);
   }
 }

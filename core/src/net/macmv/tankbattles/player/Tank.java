@@ -60,12 +60,12 @@ public class Tank {
     return newProto.build();
   }
 
-  public void loadAssets(AssetManager assetManager) {
-    skin.loadAssets(assetManager);
+  public void requireAssets(AssetManager assetManager) {
+    skin.requireAssets(assetManager);
   }
 
-  public void finishLoading(AssetManager assetManager) {
-    skin.finishLoading(assetManager);
+  public void loadAssets(AssetManager assetManager) {
+    skin.loadAssets(assetManager);
     if (useTexture) {
       model = new ModelInstance(skin.getModel());
     }

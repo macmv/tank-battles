@@ -39,11 +39,11 @@ public class Skin {
     return skins.get(name);
   }
 
-  public void loadAssets(AssetManager assetManager) {
+  public void requireAssets(AssetManager assetManager) {
     assetManager.load("skins/" + name + "/meshes.g3db", Model.class);
   }
 
-  public void finishLoading(AssetManager assetManager) {
+  public void loadAssets(AssetManager assetManager) {
     model = assetManager.get("skins/" + name + "/meshes.g3db");
   }
 }

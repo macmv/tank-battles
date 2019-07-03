@@ -24,7 +24,7 @@ public class Render {
 
     assetManager = new AssetManager();
 
-    game.loadAssets(assetManager);
+    game.requireAssets(assetManager);
     loading = true;
   }
 
@@ -39,7 +39,7 @@ public class Render {
     if (loading) {
       if (assetManager.update()) {
         System.out.println("DONE");
-        game.finishLoading(assetManager);
+        game.loadAssets(assetManager);
         loading = false;
       } else { // TODO: progress bar here for loading
         System.out.println(assetManager.getProgress()); // is percent 0.0 to 1.0
@@ -69,5 +69,9 @@ public class Render {
   public void dispose() {
     batch.dispose();
     assetManager.dispose();
+  }
+
+  public AssetManager getAssetManager() {
+    return assetManager;
   }
 }

@@ -11,7 +11,7 @@ public class TankBattles extends ApplicationAdapter {
 
   @Override
   public void create() {
-    client = new TankBattlesClient("localhost", 8001);
+    client = new TankBattlesClient("192.168.0.45", 8001);
     game = new Game(client);
     render = new Render(game);
   }
@@ -20,7 +20,7 @@ public class TankBattles extends ApplicationAdapter {
   public void render() {
     float deltaTime = Gdx.graphics.getDeltaTime();
     render.render(deltaTime);
-    game.update(deltaTime);
+    game.update(deltaTime, render.getAssetManager());
   }
 
   @Override

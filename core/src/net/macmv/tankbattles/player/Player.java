@@ -85,11 +85,11 @@ public class Player {
     return pos;
   }
 
-  public void loadAssets(AssetManager assetManager) {
-    tank.loadAssets(assetManager);
+  public void requireAssets(AssetManager assetManager) {
+    tank.requireAssets(assetManager);
   }
 
-  public void finishLoading(AssetManager assetManager) {
-    tank.finishLoading(assetManager);
+  public void loadAssets(AssetManager assetManager) {
+    tank.loadAssets(assetManager);
   }
 }
