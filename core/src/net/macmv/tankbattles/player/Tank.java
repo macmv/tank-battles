@@ -1,5 +1,7 @@
 package net.macmv.tankbattles.player;
 
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
@@ -15,7 +17,6 @@ public class Tank {
   private ModelInstance model;
   private int rotation = 0;
   private int rotationTarget = 0;
-  private Vector3 tmp = new Vector3();
 
   public Tank(Skin skin) {
     this(skin, true);
@@ -27,16 +28,13 @@ public class Tank {
     secondary = new Weapon();
     base = new Base();
     this.skin = skin;
-    if (useTexture) {
-      model = new ModelInstance(skin.getModel());
-    }
   }
 
   public void rotate(int degrees) {
     rotationTarget = degrees % 360;
   }
 
-  public void render(ModelBatch batch, float delta) {
+  public void render(ModelBatch batch, float delta, Environment env) {
     if (rotation != rotationTarget) {
       float direction;
       int d = rotation - rotationTarget;
@@ -58,15 +56,15 @@ public class Tank {
       }
       rotation = rotation % 360;
       rotation += direction * delta * 180; // rotate 180 per second
-      if (rotation > rotationTarget - 10 && rotation < rotationTarget + 10) { // close enough
+      if (rotation > rotationTarget - 5 && rotation < rotationTarget + 5) { // close enough
         rotation = rotationTarget;
       }
-      model.transform.getTranslation(tmp);
+      Vector3 translation = model.transform.getTranslation(Vector3.Zero);
       model.transform.setToRotation(Vector3.Y, rotation * -1 + 180);
-      model.transform.setTranslation(tmp);
+      model.transform.setTranslation(translation);
       model.calculateTransforms();
     }
-    batch.render(model);
+    batch.render(model, env);
   }
 
   public ModelInstance getModel() {
@@ -96,5 +94,16 @@ public class Tank {
     newProto.setSecondary(secondary.toProto());
     newProto.setBase(base.toProto());
     return newProto.build();
+  }
+
+  public void loadAssets(AssetManager assetManager) {
+    skin.loadAssets(assetManager);
+  }
+
+  public void finishLoading(AssetManager assetManager) {
+    skin.finishLoading(assetManager);
+    if (useTexture) {
+      model = new ModelInstance(skin.getModel());
+    }
   }
 }

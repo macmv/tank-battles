@@ -24,6 +24,11 @@ public class TankBattles extends ApplicationAdapter {
   }
 
   @Override
+  public void resize(int width, int height) {
+    render.resize();
+  }
+
+  @Override
   public void dispose() {
     try {
       client.shutdown();
@@ -31,6 +36,5 @@ public class TankBattles extends ApplicationAdapter {
       e.printStackTrace();
     }
     render.dispose();
-    game.dispose();
   }
 }

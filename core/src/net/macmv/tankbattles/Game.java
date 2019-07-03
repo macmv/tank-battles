@@ -2,8 +2,10 @@ package net.macmv.tankbattles;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector2;
 import net.macmv.tankbattles.player.Player;
+import net.macmv.tankbattles.terrain.Terrain;
 
 import java.util.HashMap;
 
@@ -11,12 +13,13 @@ public class Game {
   private final TankBattlesClient client;
   private final HashMap<Integer, Player> players;
   private final Player player;
+  private final Terrain terrain;
 
   public Game(TankBattlesClient client) {
     this.client = client;
     player = new Player();
     players = client.newPlayer(player, this);
-    System.out.println("Players: " + players);
+    terrain = new Terrain(this, Terrain.Type.GRASS);
   }
 
   public void update(float delta) {
@@ -39,14 +42,27 @@ public class Game {
     client.move(this, player);
   }
 
-  public void dispose() {
-  }
-
   public Player getPlayer() {
     return player;
   }
 
   public HashMap<Integer, Player> getPlayers() {
     return players;
+  }
+
+  public Terrain getTerrain() {
+    return terrain;
+  }
+
+  public void loadAssets(AssetManager assetManager) {
+    player.loadAssets(assetManager);
+    players.forEach((id, p) -> p.loadAssets(assetManager));
+    terrain.loadAssets(assetManager);
+  }
+
+  public void finishLoading(AssetManager assetManager) {
+    player.finishLoading(assetManager);
+    players.forEach((id, p) -> p.finishLoading(assetManager));
+    terrain.finishLoading(assetManager);
   }
 }

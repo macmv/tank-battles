@@ -1,5 +1,6 @@
 package net.macmv.tankbattles.player;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector2;
 import net.macmv.tankbattles.lib.proto.Point;
 import net.macmv.tankbattles.render.Skin;
@@ -36,9 +37,8 @@ public class Player {
 
   public void updatePos(Vector2 pos) {
     this.pos.set(pos);
-    if (tank.useTexture) {
+    if (tank.useTexture && tank.getModel() != null) {
       tank.getModel().transform.setTranslation(pos.x, 0, pos.y);
-//      tank.getTurretModel().transform.setTranslation(pos.x, 0, pos.y);
     }
   }
 
@@ -74,5 +74,13 @@ public class Player {
 
   public Vector2 getPos() {
     return pos;
+  }
+
+  public void loadAssets(AssetManager assetManager) {
+    tank.loadAssets(assetManager);
+  }
+
+  public void finishLoading(AssetManager assetManager) {
+    tank.finishLoading(assetManager);
   }
 }
