@@ -37,7 +37,6 @@ public class ServerGame {
       lastMove.put(p.getId(), System.nanoTime());
       return true;
     }
-    System.out.println(p);
     Vector2 newPos = new Vector2(p.getPos().getX(), p.getPos().getY());
     Vector2 oldPos = players.get(p.getId()).getPos();
     float distance = newPos.dst(oldPos);
@@ -46,11 +45,11 @@ public class ServerGame {
     lastMove.put(p.getId(), System.nanoTime());
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
     float allowedSpeed = 1;
-    if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack,
-      players.get(p.getId()).updatePos(newPos); //      but we need to worry about slow connections more
+    if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we
+      players.get(p.getId()).updatePos(newPos, p.getDirection()); // need to worry about slow connections more
       return true;
     } else {
-      players.get(p.getId()).updatePos(oldPos);
+      players.get(p.getId()).updatePos(oldPos, p.getDirection());
       return false;
     }
   }

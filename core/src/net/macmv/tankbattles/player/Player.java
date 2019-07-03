@@ -33,12 +33,21 @@ public class Player {
     pos = new Vector2();
   }
 
+  public void updatePos(Point pos, int direction) {
+    updatePos(new Vector2(pos.getX(), pos.getY()), direction);
+  }
+
   public void updatePos(Point pos) {
-    updatePos(new Vector2(pos.getX(), pos.getY()));
+    updatePos(pos, direction);
   }
 
   public void updatePos(Vector2 pos) {
+    updatePos(pos, direction);
+  }
+
+  public void updatePos(Vector2 pos, int direction) {
     this.pos.set(pos);
+    this.direction = direction;
     if (tank.useTexture && tank.getModel() != null) {
       tank.getModel().transform.setToRotation(Vector3.Y, -direction + 180);
       tank.getModel().transform.setTranslation(pos.x, 0, pos.y);
@@ -51,7 +60,7 @@ public class Player {
     newPlayer.pos = new Vector2(p.getPos().getX(), p.getPos().getY());
     newPlayer.tank = Tank.fromProto(p.getTank());
     newPlayer.direction = p.getDirection();
-    newPlayer.updatePos(newPlayer.pos);
+    newPlayer.updatePos(newPlayer.pos, newPlayer.direction);
     return newPlayer;
   }
 
@@ -78,7 +87,7 @@ public class Player {
     float x = (float) Math.cos((direction + 90) / 180.0 * Math.PI);
     float y = (float) Math.sin((direction + 90) / 180.0 * Math.PI);
     pos.add(new Vector2(x, y).scl(d.y * deltaTime)); // 1 is speed
-    updatePos(pos);
+    updatePos(pos, direction);
   }
 
   public Vector2 getPos() {

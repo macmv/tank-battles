@@ -3,7 +3,6 @@ package net.macmv.tankbattles.server;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
-import net.macmv.tankbattles.Game;
 import net.macmv.tankbattles.lib.proto.*;
 
 import java.io.IOException;
@@ -69,11 +68,7 @@ public class ServerMain {
 
     @Override
     public void playerMove(PlayerMoveReq req, StreamObserver<PlayerMoveRes> responseObserver) {
-      if (game.checkAndMove(req)) {
-        logger.info("Player move checked out");
-      } else {
-        logger.info("Player made illegal move!");
-      }
+      game.checkAndMove(req);
       PlayerMoveRes.Builder reply = PlayerMoveRes.newBuilder();
       reply.addAllPlayer(game.getPlayers().values());
       responseObserver.onNext(reply.build());

@@ -35,9 +35,7 @@ public class TankBattlesClient {
 
   public void move(Game game, Player player, AssetManager assetManager) {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
-    Player sentPlayer = player;
-    Vector2 sentPos = sentPlayer.getPos();
-    req.setPlayer(sentPlayer.toProto());
+    req.setPlayer(player.toProto());
     req.setNewPos(Point.newBuilder().setX(player.getPos().x).setY(player.getPos().y).build());
     PlayerMoveRes res;
     try {
@@ -51,19 +49,19 @@ public class TankBattlesClient {
       e.printStackTrace();
       throw new RuntimeException("Could not connect to server");
     }
-    HashMap<Integer, Player> hash = game.getPlayers();
-    res.getPlayerList().forEach(p -> {
-      if (p.getId() == game.getPlayer().getId()) {
-        if (!(new Vector2(p.getPos().getX(), p.getPos().getY()).equals(sentPos))) {
-          game.getPlayer().updatePos(p.getPos());
+    HashMap<Integer, Player> localPlayers = game.getPlayers();
+    res.getPlayerList().forEach(serverPlayer -> {
+      if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me
+        if (!(new Vector2(serverPlayer.getPos().getX(), serverPlayer.getPos().getY()).equals(player.getPos()))) { // if server corrected my move
+          game.getPlayer().updatePos(serverPlayer.getPos());
         }
-      } else {
-        if (hash.containsKey(p.getId())) {
-          hash.get(p.getId()).updatePos(p.getPos());
+      } else { // serverPlayer is not me
+        if (localPlayers.containsKey(serverPlayer.getId())) { // I have stored this player
+          localPlayers.get(serverPlayer.getId()).updatePos(serverPlayer.getPos(), serverPlayer.getDirection()); // update local player to server
         } else { // new player
-          Player newPlayer = Player.fromProto(p);
+          Player newPlayer = Player.fromProto(serverPlayer);
           newPlayer.loadAssets(assetManager);
-          hash.put(p.getId(), newPlayer);
+          localPlayers.put(serverPlayer.getId(), newPlayer);
         }
       }
     });
