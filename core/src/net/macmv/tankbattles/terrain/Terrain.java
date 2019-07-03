@@ -40,12 +40,12 @@ public class Terrain {
     return env;
   }
 
-  public void loadAssets(AssetManager assetManager) {
+  public void requireAssets(AssetManager assetManager) {
     String path = "terrain/" + type.toString().toLowerCase();
     assetManager.load(path + "/meshes.g3db", Model.class);
   }
 
-  public void finishLoading(AssetManager assetManager) {
+  public void loadAssets(AssetManager assetManager) {
     String path = "terrain/" + type.toString().toLowerCase();
     model = assetManager.get(path + "/meshes.g3db");
     for (int y = 0; y < 10; y++) {

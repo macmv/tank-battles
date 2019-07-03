@@ -9,11 +9,12 @@ import java.util.HashMap;
 
 public class ServerGame {
 
+  private final long tickStartTime;
   private HashMap<Integer, Player> players = new HashMap<>();
   private HashMap<Integer, Long> lastMove = new HashMap<>();
 
   public ServerGame() {
-
+    tickStartTime = System.currentTimeMillis();
   }
 
   public void addPlayer(int id, Tank tank) {
@@ -33,18 +34,20 @@ public class ServerGame {
 
   public boolean checkAndMove(PlayerMoveReq req) {
     net.macmv.tankbattles.lib.proto.Player p = req.getPlayer();
-    if (!lastMove.containsKey(p.getId())) {
-      lastMove.put(p.getId(), System.nanoTime());
+    if (!lastMove.containsKey(p.getId()) || req.getTick() == lastMove.get(p.getId())) { // new player, so no entry, or made two requests on same tick
+      System.out.println("Skipping move req as they sent it twice in one tick");
+      lastMove.put(p.getId(), getTick());
       return true;
     }
     Vector2 newPos = new Vector2(p.getPos().getX(), p.getPos().getY());
     Vector2 oldPos = players.get(p.getId()).getPos();
     float distance = newPos.dst(oldPos);
-    long time = System.nanoTime() - lastMove.get(p.getId());
-    float speed = distance / ((float) time / 1000000000);
-    lastMove.put(p.getId(), System.nanoTime());
+    long ticks = req.getTick() - lastMove.get(p.getId());
+    float speed = distance / (float) ticks; // tiles per tick
+    System.out.println("Speed: " + speed + " tiles / tick, tick: " + req.getTick() + ", distance: " + distance);
+    lastMove.put(p.getId(), req.getTick());
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
-    float allowedSpeed = 1;
+    float allowedSpeed = 0.1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
     if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we
       players.get(p.getId()).updatePos(newPos, p.getDirection()); // need to worry about slow connections more
       return true;
@@ -52,5 +55,9 @@ public class ServerGame {
       players.get(p.getId()).updatePos(oldPos, p.getDirection());
       return false;
     }
+  }
+
+  public long getTick() {
+    return (System.currentTimeMillis() - tickStartTime) / 50;
   }
 }

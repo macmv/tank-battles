@@ -61,6 +61,7 @@ public class ServerMain {
       logger.info("Current Players: " + game.getPlayers());
       PlayerJoinRes.Builder reply = PlayerJoinRes.newBuilder();
       reply.addAllPlayer(game.getPlayers().values());
+      reply.setTick(game.getTick());
       responseObserver.onNext(reply.build());
       responseObserver.onCompleted();
       logger.info("Player joined, res: " + reply);

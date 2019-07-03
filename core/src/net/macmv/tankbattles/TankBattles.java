@@ -7,12 +7,10 @@ import net.macmv.tankbattles.render.Render;
 public class TankBattles extends ApplicationAdapter {
   private Game game;
   private Render render;
-  private TankBattlesClient client;
 
   @Override
   public void create() {
-    client = new TankBattlesClient("192.168.0.45", 8001);
-    game = new Game(client);
+    game = new Game();
     render = new Render(game);
   }
 
@@ -31,7 +29,7 @@ public class TankBattles extends ApplicationAdapter {
   @Override
   public void dispose() {
     try {
-      client.shutdown();
+      game.shutdown();
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

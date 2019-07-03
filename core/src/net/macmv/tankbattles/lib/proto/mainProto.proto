@@ -21,6 +21,7 @@ message PlayerJoinReq {
 message PlayerJoinRes {
   repeated Player player = 1;
   int32 mapId = 2; // TODO: maps
+  int64 tick = 3;
 }
 
 // sent as often as possible, even if not moving
@@ -28,11 +29,13 @@ message PlayerMoveReq {
   Player player = 1;
   Point newPos = 2;
   int32 newDir = 3;
+  int64 tick = 4;
 }
 
 // sent to all players about new positions as often as possible
 message PlayerMoveRes {
-  repeated Player player = 2;
+  repeated Player player = 1;
+  int64 tick = 2;
 }
 
 // is a single user ingame

@@ -19,7 +19,6 @@ public class Player {
     pos = new Vector2();
   }
 
-
   public Player(int id, net.macmv.tankbattles.lib.proto.Tank tank, boolean loadTexture) {
     this.id = id;
     System.out.println(loadTexture);
@@ -86,7 +85,7 @@ public class Player {
     direction += d.x * deltaTime * 180; // 180 per second, should feel snappy
     float x = (float) Math.cos((direction + 90) / 180.0 * Math.PI);
     float y = (float) Math.sin((direction + 90) / 180.0 * Math.PI);
-    pos.add(new Vector2(x, y).scl(d.y * deltaTime)); // 1 is speed
+    pos.add(new Vector2(x, y).scl(d.y * deltaTime * 2)); // 2 is speed
     updatePos(pos, direction);
   }
 

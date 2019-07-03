@@ -1,13 +1,15 @@
-package net.macmv.tankbattles;
+package net.macmv.tankbattles.client;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector2;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import net.macmv.tankbattles.Game;
 import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -17,6 +19,7 @@ public class TankBattlesClient {
 
   private final ManagedChannel channel;
   private final TankBattlesGrpc.TankBattlesBlockingStub blockingStub;
+  private long timeTicksStart;
 
   public TankBattlesClient(String host, int port) {
     this(ManagedChannelBuilder.forAddress(host, port)
@@ -37,6 +40,7 @@ public class TankBattlesClient {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     req.setPlayer(player.toProto());
     req.setNewPos(Point.newBuilder().setX(player.getPos().x).setY(player.getPos().y).build());
+    req.setTick((int) game.currentTick());
     PlayerMoveRes res;
     try {
       res = blockingStub.playerMove(req.build());
@@ -89,6 +93,12 @@ public class TankBattlesClient {
         hash.put(p.getId(), Player.fromProto(p));
       }
     });
+    timeTicksStart = System.currentTimeMillis() - res.getTick() * 50;
+    System.out.println("Server start time: " + new Date(timeTicksStart));
     return hash;
+  }
+
+  public long getTick() {
+    return (System.currentTimeMillis() - timeTicksStart) / 50; // ticks are 50 millis
   }
 }
