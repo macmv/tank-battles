@@ -2,6 +2,7 @@ package net.macmv.tankbattles.render;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.utils.UBJsonReader;
 import net.macmv.tankbattles.lib.proto.Tank;
@@ -45,5 +46,6 @@ public class Skin {
 
   public void loadAssets(AssetManager assetManager) {
     model = assetManager.get("skins/" + name + "/meshes.g3db");
+    model.materials.forEach(m -> m.set(new ColorAttribute(ColorAttribute.Specular, 0, 0, 0, 0)));
   }
 }

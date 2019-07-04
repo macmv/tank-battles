@@ -32,7 +32,6 @@ public class ClientThread {
 
   private void move(AssetManager assetManager) {
     synchronized (game.getPlayer()) {
-      System.out.println("Sending move");
       client.move(game, game.getPlayer(), assetManager);
     }
   }

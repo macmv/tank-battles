@@ -4,7 +4,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import net.macmv.tankbattles.render.Skin;
+
+import java.util.ArrayList;
 
 public class Tank {
 
@@ -14,6 +17,7 @@ public class Tank {
   private Base base;
   private Skin skin;
   private ModelInstance model;
+  private ArrayList<AnimationController> animations = new ArrayList<>();
 
   public Tank(Skin skin) {
     this(skin, true);
@@ -27,7 +31,8 @@ public class Tank {
     this.skin = skin;
   }
 
-  public void render(ModelBatch batch, Environment env) {
+  public void render(ModelBatch batch, Environment env, float delta) {
+    animations.forEach(a -> a.update(delta));
     batch.render(model, env);
   }
 
@@ -68,6 +73,15 @@ public class Tank {
     skin.loadAssets(assetManager);
     if (useTexture) {
       model = new ModelInstance(skin.getModel());
+
+      model.animations.forEach(a -> System.out.println(a.duration));
+
+      for(int i = 1; i < 22; i ++) {
+        AnimationController a = new AnimationController(model);
+        animations.add(a);
+        String name = String.format("Treads.%03d|Forward.001", i);
+        a.setAnimation(name,-1, null);
+      }
     }
   }
 }

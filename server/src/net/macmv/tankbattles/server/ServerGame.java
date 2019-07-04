@@ -34,9 +34,12 @@ public class ServerGame {
 
   public boolean checkAndMove(PlayerMoveReq req) {
     net.macmv.tankbattles.lib.proto.Player p = req.getPlayer();
-    if (!lastMove.containsKey(p.getId()) || req.getTick() == lastMove.get(p.getId())) { // new player, so no entry, or made two requests on same tick
-      System.out.println("Skipping move req as they sent it twice in one tick");
+    if (!lastMove.containsKey(p.getId())) {
       lastMove.put(p.getId(), getTick());
+      return true;
+    }
+    if (req.getTick() == lastMove.get(p.getId())) { // new player, so no entry, or made two requests on same tick
+      System.out.println("Skipping move req as they sent it twice in one tick");
       return true;
     }
     Vector2 newPos = new Vector2(p.getPos().getX(), p.getPos().getY());
