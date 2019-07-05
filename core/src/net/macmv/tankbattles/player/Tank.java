@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.render.Skin;
 
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ public class Tank {
 
   public final boolean useTexture;
   private Weapon primary;
-  private Weapon secondary;
   private Base base;
   private Skin skin;
   private ModelInstance model;
@@ -28,7 +28,6 @@ public class Tank {
   private Tank(Skin skin, boolean useTexture) {
     this.useTexture = useTexture;
     primary = new Weapon();
-    secondary = new Weapon();
     base = new Base();
     this.skin = skin;
   }
@@ -96,6 +95,16 @@ public class Tank {
           AnimationController a = new AnimationController(model);
           leftTread.add(a);
           a.setAnimation(n.id + "|Move", 0, null);
+        }
+      });
+    }
+  }
+
+  public void setTurretRotation(float angle) {
+    if (model != null) {
+      model.nodes.forEach(n -> {
+        if (n.id.equals("Weapon.001")) {
+          n.rotation.set(Vector3.Y, angle);
         }
       });
     }

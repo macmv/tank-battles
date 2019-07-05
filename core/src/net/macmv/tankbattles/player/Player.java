@@ -19,6 +19,8 @@ public class Player {
     this.id = id;
     this.tank = Tank.fromProto(tank, true);
     pos = new Vector2();
+    turretDirection = new Vector2();
+    turretTarget = new Vector2();
   }
 
   public Player(int id, net.macmv.tankbattles.lib.proto.Tank tank, boolean loadTexture) {
@@ -26,12 +28,16 @@ public class Player {
     System.out.println(loadTexture);
     this.tank = Tank.fromProto(tank, loadTexture);
     pos = new Vector2();
+    turretDirection = new Vector2();
+    turretTarget = new Vector2();
   }
 
   public Player() {
     id = (int) (Math.random() * Integer.MAX_VALUE);
     tank = new Tank(Skin.getDefault());
     pos = new Vector2();
+    turretDirection = new Vector2();
+    turretTarget = new Vector2();
   }
 
   public void updatePos(Point pos, int direction) {
@@ -104,6 +110,26 @@ public class Player {
     pos.add(new Vector2(x, y).scl(deltaVel * deltaTime * 1.75f)); // 1.75 is speed
     updatePos(pos, direction);
     tank.changeAnimations(right, left);
+    if (turretDirection.x > turretTarget.x - 5 && turretDirection.x < turretTarget.x + 5) {
+//      turretDirection.x = turretTarget.x;
+    } else {
+      if (turretDirection.x - turretTarget.x > 180 || turretDirection.x - turretTarget.x < -180) {
+        if (turretDirection.x - turretTarget.x > 0){
+          turretDirection.x += 1;
+        } else{
+          turretDirection.x -= 1;
+        }
+      } else {
+        if (turretDirection.x - turretTarget.x > 0){
+          turretDirection.x -= 1;
+        } else{
+          turretDirection.x += 1;
+        }
+      }
+      turretDirection.x = (turretDirection.x + 360) % 360;
+    }
+    System.out.println("Target: " + turretTarget.x + ", Direction: " + turretDirection.x);
+    tank.setTurretRotation(direction - turretDirection.x);
   }
 
   public Vector2 getPos() {
@@ -124,6 +150,5 @@ public class Player {
 
   public void setTurretTarget(float angle, float y) {
     turretTarget = new Vector2(angle % 360, y);
-    System.out.println(turretTarget);
   }
 }
