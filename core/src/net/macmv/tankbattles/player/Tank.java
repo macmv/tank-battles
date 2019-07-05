@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import net.macmv.tankbattles.render.Skin;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class Tank {
 
@@ -17,7 +18,8 @@ public class Tank {
   private Base base;
   private Skin skin;
   private ModelInstance model;
-  private ArrayList<AnimationController> animations = new ArrayList<>();
+  private ArrayList<AnimationController> rightTread = new ArrayList<>();
+  private ArrayList<AnimationController> leftTread = new ArrayList<>();
 
   public Tank(Skin skin) {
     this(skin, true);
@@ -32,7 +34,8 @@ public class Tank {
   }
 
   public void render(ModelBatch batch, Environment env, float delta) {
-    animations.forEach(a -> a.update(delta));
+    rightTread.forEach(a -> a.update(delta));
+    leftTread.forEach(a -> a.update(delta));
     batch.render(model, env);
   }
 
@@ -69,19 +72,34 @@ public class Tank {
     skin.requireAssets(assetManager);
   }
 
+  public void changeAnimations(float right, float left) {
+    leftTread.forEach(a -> {
+      a.setAnimation(a.current.animation.id, -1, right, null);
+    });
+    rightTread.forEach(a -> {
+      a.setAnimation(a.current.animation.id, -1, left, null);
+    });
+  }
+
   public void loadAssets(AssetManager assetManager) {
     skin.loadAssets(assetManager);
     if (useTexture) {
       model = new ModelInstance(skin.getModel());
 
-      model.animations.forEach(a -> System.out.println(a.duration));
+      Pattern right = Pattern.compile("Right Tread\\..{3}");
+      Pattern left = Pattern.compile("Left Tread\\..{3}");
 
-      for(int i = 1; i < 22; i ++) {
-        AnimationController a = new AnimationController(model);
-        animations.add(a);
-        String name = String.format("Treads.%03d|Forward.001", i);
-        a.setAnimation(name,-1, null);
-      }
+      model.nodes.forEach(n -> {
+        if (right.matcher(n.id).matches()) {
+          AnimationController a = new AnimationController(model);
+          rightTread.add(a);
+          a.setAnimation(n.id + "|Move", 0, null);
+        } else if (left.matcher(n.id).matches()) {
+          AnimationController a = new AnimationController(model);
+          leftTread.add(a);
+          a.setAnimation(n.id + "|Move", 0, null);
+        }
+      });
     }
   }
 }

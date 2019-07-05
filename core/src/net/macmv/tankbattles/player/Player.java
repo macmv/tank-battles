@@ -80,13 +80,26 @@ public class Player {
     return newProto.build();
   }
 
-  public void move(Vector2 d, float deltaTime) {
-    // d.y is forward/back, d.x is turn right/left
-    direction += d.x * deltaTime * 180; // 180 per second, should feel snappy
-    float x = (float) Math.cos((direction + 90) / 180.0 * Math.PI);
-    float y = (float) Math.sin((direction + 90) / 180.0 * Math.PI);
-    pos.add(new Vector2(x, y).scl(d.y * deltaTime * 1.75f)); // 2 is speed
+  public void move(int right, int left, float deltaTime) {
+    // right is speed of right tread, left speed of left tread
+    float deltaVel = (right + left) / 2f;
+    int deltaDir = (left - right) % 2;
+    if (deltaDir != 0) {
+      if (deltaVel < 0) {
+        deltaVel -= 0.1;
+      } else {
+        deltaVel += 0.1;
+      }
+    }
+    if (left == -right && right != 0 && left != 0) {
+      deltaDir = left;
+    }
+    direction += deltaDir * deltaTime * (left != 0 && right != 0 ? 160 : 90); // 180 per second, should feel snappy
+    float x = (float) Math.cos((direction - 90) / 180.0 * Math.PI);
+    float y = (float) Math.sin((direction - 90) / 180.0 * Math.PI);
+    pos.add(new Vector2(x, y).scl(deltaVel * deltaTime * 1.75f)); // 1.75 is speed
     updatePos(pos, direction);
+    tank.changeAnimations(right, left);
   }
 
   public Vector2 getPos() {
