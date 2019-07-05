@@ -8,10 +8,12 @@ import net.macmv.tankbattles.render.Skin;
 
 public class Player {
 
-  private int id;
+  private int id; // rand(0, MAX_INT)
   private Vector2 pos;
   private Tank tank;
   private int direction; // in degrees
+  private Vector2 turretDirection; // degrees, -1 to 1
+  private Vector2 turretTarget; // degrees, -1 to 1
 
   public Player(int id, net.macmv.tankbattles.lib.proto.Tank tank) {
     this.id = id;
@@ -60,6 +62,7 @@ public class Player {
     newPlayer.tank = Tank.fromProto(p.getTank());
     newPlayer.direction = p.getDirection();
     newPlayer.updatePos(newPlayer.pos, newPlayer.direction);
+    newPlayer.turretDirection = new Vector2(p.getTurretDirection().getX(), p.getTurretDirection().getY());
     return newPlayer;
   }
 
@@ -77,6 +80,7 @@ public class Player {
     newProto.setPos(Point.newBuilder().setX(pos.x).setY(pos.y).build());
     newProto.setTank(tank.toProto());
     newProto.setDirection(direction);
+    newProto.setTurretDirection(Point.newBuilder().setX(turretDirection.x).setY(turretDirection.y).build());
     return newProto.build();
   }
 
@@ -94,7 +98,7 @@ public class Player {
     if (left == -right && right != 0 && left != 0) {
       deltaDir = left;
     }
-    direction += deltaDir * deltaTime * (left != 0 && right != 0 ? 160 : 90); // 180 per second, should feel snappy
+    direction += deltaDir * deltaTime * (left != 0 && right != 0 ? 150 : 80);
     float x = (float) Math.cos((direction - 90) / 180.0 * Math.PI);
     float y = (float) Math.sin((direction - 90) / 180.0 * Math.PI);
     pos.add(new Vector2(x, y).scl(deltaVel * deltaTime * 1.75f)); // 1.75 is speed
@@ -112,5 +116,14 @@ public class Player {
 
   public void loadAssets(AssetManager assetManager) {
     tank.loadAssets(assetManager);
+  }
+
+  public int getDirection() {
+    return direction;
+  }
+
+  public void setTurretTarget(float angle, float y) {
+    turretTarget = new Vector2(angle % 360, y);
+    System.out.println(turretTarget);
   }
 }

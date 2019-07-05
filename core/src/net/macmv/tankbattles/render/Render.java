@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.Game;
 
 public class Render {
@@ -15,6 +16,7 @@ public class Render {
   private final AssetManager assetManager;
   private final Game game;
   private boolean loading;
+  private float prevDirection;
 
   public Render(Game game) {
     this.game = game;
@@ -33,6 +35,9 @@ public class Render {
     cam.viewportHeight = Gdx.graphics.getHeight();
   }
 
+  private final Vector2 tmp2 = new Vector2();
+  private final Vector3 tmp3 = new Vector3();
+
   public void render(float delta) {
     Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -47,10 +52,21 @@ public class Render {
       }
     }
 
+    Gdx.input.setCursorCatched(true);
+    Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+
     Vector2 pos = game.getPlayer().getPos();
-    cam.position.set(pos.x, 10, pos.y + 15);
-    cam.lookAt(pos.x, 0, pos.y);
+    float deltaX = -Gdx.input.getDeltaX() * 0.5f + prevDirection - game.getPlayer().getDirection();
+    prevDirection = game.getPlayer().getDirection();
+    float deltaY = -Gdx.input.getDeltaY() * 0.5f;
+    cam.direction.rotate(cam.up, deltaX);
+    cam.direction.rotate(tmp3.set(cam.direction).crs(cam.up).nor(), deltaY);
+    float x = (float) Math.cos((game.getPlayer().getDirection() + 90) / 180.0 * Math.PI);
+    float y = (float) Math.sin((game.getPlayer().getDirection() + 90) / 180.0 * Math.PI);
+    cam.position.set(pos.x + x, 3, pos.y + y);
     cam.update();
+
+    game.getPlayer().setTurretTarget(tmp2.set(cam.direction.x, cam.direction.z).angle() + 90, cam.direction.y);
 
     Environment env = game.getTerrain().getEnvironment();
 

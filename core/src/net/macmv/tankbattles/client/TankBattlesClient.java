@@ -39,7 +39,6 @@ public class TankBattlesClient {
   public void move(Game game, Player player, AssetManager assetManager) {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     req.setPlayer(player.toProto());
-    req.setNewPos(Point.newBuilder().setX(player.getPos().x).setY(player.getPos().y).build());
     req.setTick((int) game.currentTick());
     PlayerMoveRes res;
     try {

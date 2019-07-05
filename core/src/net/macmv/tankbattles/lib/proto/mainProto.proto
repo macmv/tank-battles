@@ -27,8 +27,6 @@ message PlayerJoinRes {
 // sent as often as possible, even if not moving
 message PlayerMoveReq {
   Player player = 1;
-  Point newPos = 2;
-  int32 newDir = 3;
   int64 tick = 4;
 }
 
@@ -44,15 +42,15 @@ message Player {
   Tank tank = 2;
   Point pos = 3;
   int32 direction = 4;
+  Point turretDirection = 5;
 }
 
 // can be user or AI in or out of game, like when building a new loadout
 
-// the weapon and base store current info, things like max health and total time to reload
-// are grabbed from a database of ids. This is to prevent people from having infinite reload
+// the weapon and base store current info, whereas things like max health and total time to reload
+// are grabbed from a database of ids. This is to prevent people from having 0 reload / infinite health
 message Tank {
   Weapon primary = 1;
-  Weapon secondary = 2;
   Base base = 3;
   Skin skin = 4;
 

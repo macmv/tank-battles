@@ -55,7 +55,6 @@ public class Tank {
       newTank = new Tank(null, useTexture);
     }
     newTank.primary = Weapon.fromProto(p.getPrimary());
-    newTank.secondary = Weapon.fromProto(p.getSecondary());
     newTank.base = Base.fromProto(p.getBase());
     return newTank;
   }
@@ -63,7 +62,6 @@ public class Tank {
   public net.macmv.tankbattles.lib.proto.Tank toProto() {
     net.macmv.tankbattles.lib.proto.Tank.Builder newProto = net.macmv.tankbattles.lib.proto.Tank.newBuilder();
     newProto.setPrimary(primary.toProto());
-    newProto.setSecondary(secondary.toProto());
     newProto.setBase(base.toProto());
     return newProto.build();
   }
