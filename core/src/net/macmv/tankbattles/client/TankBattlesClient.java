@@ -37,12 +37,12 @@ public class TankBattlesClient {
   }
 
   public void move(Game game, Player player, AssetManager assetManager) {
-    PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
+    PlayerEventReq.Builder req = PlayerEventReq.newBuilder();
     req.setPlayer(player.toProto());
     req.setTick((int) game.currentTick());
-    PlayerMoveRes res;
+    PlayerEventRes res;
     try {
-      res = blockingStub.playerMove(req.build());
+      res = blockingStub.playerEvent(req.build());
     } catch (StatusRuntimeException e) {
       try {
         shutdown();

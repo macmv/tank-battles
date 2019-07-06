@@ -8,7 +8,7 @@ option objc_class_prefix = "HLW";
 // all the things ingame
 service TankBattles {
   rpc PlayerJoin (PlayerJoinReq) returns (PlayerJoinRes);
-  rpc PlayerMove (PlayerMoveReq) returns (PlayerMoveRes);
+  rpc PlayerEvent (PlayerEventReq) returns (PlayerEventRes);
 }
 
 // sent once from new player
@@ -25,15 +25,17 @@ message PlayerJoinRes {
 }
 
 // sent as often as possible, even if not moving
-message PlayerMoveReq {
+message PlayerEventReq {
   Player player = 1;
-  int64 tick = 4;
+  Projectile projectile = 2;
+  int64 tick = 3;
 }
 
 // sent to all players about new positions as often as possible
-message PlayerMoveRes {
+message PlayerEventRes {
   repeated Player player = 1;
-  int64 tick = 2;
+  repeated Projectile projectile = 2;
+  int64 tick = 3;
 }
 
 // is a single user ingame
@@ -71,6 +73,11 @@ message Tank {
   message Skin {
     string name = 1;
   }
+}
+
+message Projectile {
+  Point pos = 1;
+  Point vel = 2;
 }
 
 // that's just a point

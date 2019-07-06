@@ -68,9 +68,9 @@ public class ServerMain {
     }
 
     @Override
-    public void playerMove(PlayerMoveReq req, StreamObserver<PlayerMoveRes> responseObserver) {
+    public void playerEvent(PlayerEventReq req, StreamObserver<PlayerEventRes> responseObserver) {
       game.checkAndMove(req);
-      PlayerMoveRes.Builder reply = PlayerMoveRes.newBuilder();
+      PlayerEventRes.Builder reply = PlayerEventRes.newBuilder();
       reply.addAllPlayer(game.getPlayers().values());
       System.out.println("Sending res: " + reply + ", got req: " + req);
       responseObserver.onNext(reply.build());

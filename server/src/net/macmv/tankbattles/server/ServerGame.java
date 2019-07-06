@@ -1,7 +1,7 @@
 package net.macmv.tankbattles.server;
 
 import com.badlogic.gdx.math.Vector2;
-import net.macmv.tankbattles.lib.proto.PlayerMoveReq;
+import net.macmv.tankbattles.lib.proto.PlayerEventReq;
 import net.macmv.tankbattles.lib.proto.Tank;
 import net.macmv.tankbattles.player.Player;
 
@@ -31,7 +31,7 @@ public class ServerGame {
     return hash;
   }
 
-  public boolean checkAndMove(PlayerMoveReq req) {
+  public boolean checkAndMove(PlayerEventReq req) {
     net.macmv.tankbattles.lib.proto.Player p = req.getPlayer();
     if (!lastMove.containsKey(p.getId())) {
       lastMove.put(p.getId(), getTick());
