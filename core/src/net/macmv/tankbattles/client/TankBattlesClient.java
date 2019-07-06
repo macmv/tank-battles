@@ -56,11 +56,13 @@ public class TankBattlesClient {
     res.getPlayerList().forEach(serverPlayer -> {
       if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me
         if (!(new Vector2(serverPlayer.getPos().getX(), serverPlayer.getPos().getY()).equals(player.getPos()))) { // if server corrected my move
-          game.getPlayer().updatePos(serverPlayer.getPos());
+          game.getPlayer().setPos(serverPlayer.getPos());
         }
       } else { // serverPlayer is not me
-        if (localPlayers.containsKey(serverPlayer.getId())) { // I have stored this player
-          localPlayers.get(serverPlayer.getId()).updatePos(serverPlayer.getPos(), serverPlayer.getDirection()); // update local player to server
+        if (localPlayers.containsKey(serverPlayer.getId())) { // stored this player
+          System.out.println("Updating player turret to: " + serverPlayer);
+          localPlayers.get(serverPlayer.getId()).setTurretDirection(serverPlayer.getTurretDirection());
+          localPlayers.get(serverPlayer.getId()).updateAnimations(serverPlayer.getPos(), serverPlayer.getDirection()); // update local player to server
         } else { // new player
           Player newPlayer = Player.fromProto(serverPlayer);
           newPlayer.loadAssets(assetManager);

@@ -40,25 +40,44 @@ public class Player {
     turretTarget = new Vector2();
   }
 
-  public void updatePos(Point pos, int direction) {
-    updatePos(new Vector2(pos.getX(), pos.getY()), direction);
+  public void updateAnimations() {
+    updateAnimations(pos, direction);
   }
 
-  public void updatePos(Point pos) {
-    updatePos(pos, direction);
+  public void updateAnimations(Point pos, int direction) {
+    this.pos.set(pos.getX(), pos.getY());
+    updateAnimations(this.pos, direction);
   }
 
-  public void updatePos(Vector2 pos) {
-    updatePos(pos, direction);
-  }
-
-  public void updatePos(Vector2 pos, int direction) {
+  public void updateAnimations(Vector2 pos, int direction) {
     this.pos.set(pos);
     this.direction = direction;
     if (tank.useTexture && tank.getModel() != null) {
       tank.getModel().transform.setToRotation(Vector3.Y, -direction + 180);
       tank.getModel().transform.setTranslation(pos.x, 0, pos.y);
     }
+    float right = 0;
+    float left = 0;
+    tank.updateAnimations(right, left);
+    if (turretDirection.x > turretTarget.x - 2 && turretDirection.x < turretTarget.x + 2) {
+      turretDirection.x = turretTarget.x;
+    } else {
+      if (turretDirection.x - turretTarget.x > 180 || turretDirection.x - turretTarget.x < -180) {
+        if (turretDirection.x - turretTarget.x > 0){
+          turretDirection.x += 1;
+        } else{
+          turretDirection.x -= 1;
+        }
+      } else {
+        if (turretDirection.x - turretTarget.x > 0){
+          turretDirection.x -= 1;
+        } else{
+          turretDirection.x += 1;
+        }
+      }
+      turretDirection.x = (turretDirection.x + 360) % 360;
+    }
+    tank.setTurretRotation(direction - turretDirection.x);
   }
 
   public static Player fromProto(net.macmv.tankbattles.lib.proto.Player p) {
@@ -67,7 +86,7 @@ public class Player {
     newPlayer.pos = new Vector2(p.getPos().getX(), p.getPos().getY());
     newPlayer.tank = Tank.fromProto(p.getTank());
     newPlayer.direction = p.getDirection();
-    newPlayer.updatePos(newPlayer.pos, newPlayer.direction);
+    newPlayer.updateAnimations();
     newPlayer.turretDirection = new Vector2(p.getTurretDirection().getX(), p.getTurretDirection().getY());
     return newPlayer;
   }
@@ -104,32 +123,13 @@ public class Player {
     if (left == -right && right != 0 && left != 0) {
       deltaDir = left;
     }
-    direction += deltaDir * deltaTime * (left != 0 && right != 0 ? 150 : 80);
+    float turretDirChange = deltaDir * deltaTime * (left != 0 && right != 0 ? 150 : 80);
+    direction += turretDirChange;
+    turretDirection.x += turretDirChange;
     float x = (float) Math.cos((direction - 90) / 180.0 * Math.PI);
     float y = (float) Math.sin((direction - 90) / 180.0 * Math.PI);
     pos.add(new Vector2(x, y).scl(deltaVel * deltaTime * 1.75f)); // 1.75 is speed
-    updatePos(pos, direction);
-    tank.changeAnimations(right, left);
-    if (turretDirection.x > turretTarget.x - 5 && turretDirection.x < turretTarget.x + 5) {
-//      turretDirection.x = turretTarget.x;
-    } else {
-      if (turretDirection.x - turretTarget.x > 180 || turretDirection.x - turretTarget.x < -180) {
-        if (turretDirection.x - turretTarget.x > 0){
-          turretDirection.x += 1;
-        } else{
-          turretDirection.x -= 1;
-        }
-      } else {
-        if (turretDirection.x - turretTarget.x > 0){
-          turretDirection.x -= 1;
-        } else{
-          turretDirection.x += 1;
-        }
-      }
-      turretDirection.x = (turretDirection.x + 360) % 360;
-    }
-    System.out.println("Target: " + turretTarget.x + ", Direction: " + turretDirection.x);
-    tank.setTurretRotation(direction - turretDirection.x);
+    updateAnimations();
   }
 
   public Vector2 getPos() {
@@ -150,5 +150,19 @@ public class Player {
 
   public void setTurretTarget(float angle, float y) {
     turretTarget = new Vector2(angle % 360, y);
+  }
+
+  public void setTurretDirection(Point turretDirection) {
+    this.turretDirection.set(turretDirection.getX(), turretDirection.getY());
+    turretTarget.set(this.turretDirection);
+  }
+
+  public void setPos(Point pos) {
+    this.pos.set(pos.getX(), pos.getY());
+  }
+
+  public void updatePos(Vector2 newPos, int direction) {
+    this.pos.set(newPos);
+  this.direction = direction;
   }
 }

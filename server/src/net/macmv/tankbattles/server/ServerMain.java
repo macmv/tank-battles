@@ -72,6 +72,7 @@ public class ServerMain {
       game.checkAndMove(req);
       PlayerMoveRes.Builder reply = PlayerMoveRes.newBuilder();
       reply.addAllPlayer(game.getPlayers().values());
+      System.out.println("Sending res: " + reply + ", got req: " + req);
       responseObserver.onNext(reply.build());
       responseObserver.onCompleted();
     }

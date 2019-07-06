@@ -69,7 +69,7 @@ public class Tank {
     skin.requireAssets(assetManager);
   }
 
-  public void changeAnimations(float right, float left) {
+  public void updateAnimations(float right, float left) {
     leftTread.forEach(a -> {
       a.setAnimation(a.current.animation.id, -1, right, null);
     });

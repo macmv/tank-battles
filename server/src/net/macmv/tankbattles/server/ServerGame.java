@@ -20,7 +20,6 @@ public class ServerGame {
   public void addPlayer(int id, Tank tank) {
     System.out.println("Adding Player");
     Player player = new Player(id, tank, false);
-    player.updatePos(Vector2.Zero);
     players.put(id, player);
   }
 
@@ -47,12 +46,12 @@ public class ServerGame {
     float distance = newPos.dst(oldPos);
     long ticks = req.getTick() - lastMove.get(p.getId());
     float speed = distance / (float) ticks; // tiles per tick
-    System.out.println("Speed: " + speed + " tiles / tick, tick: " + req.getTick() + ", distance: " + distance);
     lastMove.put(p.getId(), req.getTick());
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
+    players.get(p.getId()).setTurretDirection(p.getTurretDirection());
     float allowedSpeed = 0.1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
-    if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we
-      players.get(p.getId()).updatePos(newPos, p.getDirection()); // need to worry about slow connections more
+    if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we need to worry about slow connections more
+      players.get(p.getId()).updatePos(newPos, p.getDirection());
       return true;
     } else {
       players.get(p.getId()).updatePos(oldPos, p.getDirection());
