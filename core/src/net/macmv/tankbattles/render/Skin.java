@@ -41,11 +41,11 @@ public class Skin {
   }
 
   public void requireAssets(AssetManager assetManager) {
-    assetManager.load("skins/" + name + "/meshes.g3db", Model.class);
+    assetManager.load("skins/" + name + "/exported.g3db", Model.class);
   }
 
   public void loadAssets(AssetManager assetManager) {
-    model = assetManager.get("skins/" + name + "/meshes.g3db");
+    model = assetManager.get("skins/" + name + "/exported.g3db");
     model.materials.forEach(m -> m.set(new ColorAttribute(ColorAttribute.Specular, 0, 0, 0, 0)));
   }
 }

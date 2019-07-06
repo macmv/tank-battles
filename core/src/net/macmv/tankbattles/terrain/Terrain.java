@@ -42,12 +42,12 @@ public class Terrain {
 
   public void requireAssets(AssetManager assetManager) {
     String path = "terrain/" + type.toString().toLowerCase();
-    assetManager.load(path + "/meshes.g3db", Model.class);
+    assetManager.load(path + "/exported.g3db", Model.class);
   }
 
   public void loadAssets(AssetManager assetManager) {
     String path = "terrain/" + type.toString().toLowerCase();
-    model = assetManager.get(path + "/meshes.g3db");
+    model = assetManager.get(path + "/exported.g3db");
     for (int y = 0; y < 10; y++) {
       for (int x = 0; x < 10; x++) {
         ModelInstance inst = new ModelInstance(model);
