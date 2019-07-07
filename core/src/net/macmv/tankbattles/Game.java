@@ -3,10 +3,14 @@ package net.macmv.tankbattles;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.client.ClientThread;
+import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.player.Player;
+import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Game {
@@ -14,6 +18,8 @@ public class Game {
   private final HashMap<Integer, Player> players;
   private final Player player;
   private final Terrain terrain;
+  private ArrayList<Projectile> projectiles = new ArrayList<>();
+  private Projectile newProjectile;
 
   public Game() {
     this.client = new ClientThread(this);
@@ -40,6 +46,9 @@ public class Game {
     synchronized (player) {
       player.move(right, left, delta); // check move def to see why we don't call d.nor()
     }
+    projectiles.forEach(p -> {
+      p.update(delta);
+    });
   }
 
   public Player getPlayer() {
@@ -73,5 +82,36 @@ public class Game {
 
   public void shutdown() throws InterruptedException {
     client.shutdown();
+  }
+
+  public void addProjectile(Point3 pos, Point3 vel, int id) {
+    projectiles.add(new Projectile(
+            new Vector3(pos.getX(), pos.getY(), pos.getZ()),
+            new Vector3(vel.getX(), vel.getY(), vel.getZ()), id));
+  }
+
+  public void sendProjectile(Vector3 pos, Vector3 vel) {
+    newProjectile = new Projectile(pos, vel, 0);
+  }
+
+  public ArrayList<Projectile> getProjectiles() {
+    return projectiles;
+  }
+
+  public Projectile getProjectile(int id) {
+    for (Projectile p : projectiles) {
+      if (p.id == id) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  public Projectile getNewProjectile() {
+    return newProjectile;
+  }
+
+  public void clearNewProjectile() {
+    newProjectile = null;
   }
 }

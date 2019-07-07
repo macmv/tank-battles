@@ -69,11 +69,22 @@ public class ServerMain {
 
     @Override
     public void playerEvent(PlayerEventReq req, StreamObserver<PlayerEventRes> responseObserver) {
-      game.checkAndMove(req);
-      PlayerEventRes.Builder reply = PlayerEventRes.newBuilder();
-      reply.addAllPlayer(game.getPlayers().values());
-      System.out.println("Sending res: " + reply + ", got req: " + req);
-      responseObserver.onNext(reply.build());
+      PlayerMoveRes moveRes = null;
+      PlayerFireRes fireRes = null;
+      if (req.getMoveReqBool()) {
+        moveRes = game.checkAndMove(req.getMoveReq(), req.getTick());
+      }
+      if (req.getFireReqBool()) {
+        fireRes = game.checkFire(req.getFireReq(), req.getTick());
+      }
+      PlayerEventRes.Builder res = PlayerEventRes.newBuilder();
+      if (moveRes != null) {
+        res.setMoveRes(moveRes);
+      }
+      if (fireRes != null) {
+        res.setFireRes(fireRes);
+      }
+      responseObserver.onNext(res.build());
       responseObserver.onCompleted();
     }
   }

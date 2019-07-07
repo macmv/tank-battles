@@ -24,27 +24,45 @@ message PlayerJoinRes {
   int64 tick = 3;
 }
 
-// sent as often as possible, even if not moving
 message PlayerEventReq {
-  Player player = 1;
-  Projectile projectile = 2;
+  PlayerMoveReq moveReq = 1;
+  bool moveReqBool = 2;
+  PlayerFireReq fireReq = 3;
+  bool fireReqBool = 4;
+  int64 tick = 5;
+}
+
+message PlayerEventRes {
+  PlayerMoveRes moveRes = 1;
+  PlayerFireRes fireRes = 2;
   int64 tick = 3;
 }
 
-// sent to all players about new positions as often as possible
-message PlayerEventRes {
+message PlayerMoveReq {
+  Player player = 1;
+}
+
+message PlayerMoveRes {
   repeated Player player = 1;
-  repeated Projectile projectile = 2;
-  int64 tick = 3;
+}
+
+message PlayerFireReq {
+  int32 id = 1;
+  Point3 projectilePos = 2;
+  Point3 projectileVel = 3;
+}
+
+message PlayerFireRes {
+  repeated Projectile projectile = 1;
 }
 
 // is a single user ingame
 message Player {
   int32 id = 1;
   Tank tank = 2;
-  Point pos = 3;
+  Point3 pos = 3;
   int32 direction = 4;
-  Point turretDirection = 5;
+  Point2 turretDirection = 5;
 }
 
 // can be user or AI in or out of game, like when building a new loadout
@@ -76,12 +94,19 @@ message Tank {
 }
 
 message Projectile {
-  Point pos = 1;
-  Point vel = 2;
+  int32 id = 1;
+  Point3 pos = 2;
+  Point3 vel = 3;
 }
 
 // that's just a point
-message Point {
+message Point2 {
   float x = 1;
   float y = 2;
+}
+
+message Point3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
 }

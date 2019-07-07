@@ -55,15 +55,15 @@ public class Render {
     Gdx.input.setCursorCatched(true);
     Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 
-    Vector2 pos = game.getPlayer().getPos();
+    Vector3 pos = game.getPlayer().getPos();
     float deltaX = -Gdx.input.getDeltaX() * 0.5f + prevDirection - game.getPlayer().getDirection();
     prevDirection = game.getPlayer().getDirection();
     float deltaY = -Gdx.input.getDeltaY() * 0.5f;
     cam.direction.rotate(cam.up, deltaX);
     cam.direction.rotate(tmp3.set(cam.direction).crs(cam.up).nor(), deltaY);
     float x = (float) Math.cos((game.getPlayer().getDirection() + 90) / 180.0 * Math.PI);
-    float y = (float) Math.sin((game.getPlayer().getDirection() + 90) / 180.0 * Math.PI);
-    cam.position.set(pos.x + x, 3, pos.y + y);
+    float z = (float) Math.sin((game.getPlayer().getDirection() + 90) / 180.0 * Math.PI);
+    cam.position.set(pos.x + x, 3, pos.z + z);
     cam.update();
 
     game.getPlayer().setTurretTarget(tmp2.set(cam.direction.x, cam.direction.z).angle() + 90, cam.direction.y);
@@ -77,6 +77,9 @@ public class Render {
     game.getPlayer().getTank().render(batch, env, delta);
     game.getPlayers().forEach((id, p) -> {
       p.getTank().render(batch, env, delta);
+    });
+    game.getProjectiles().forEach((p) -> {
+      p.render(batch, env);
     });
 
     batch.end();

@@ -1,9 +1,9 @@
 package net.macmv.tankbattles.server;
 
-import com.badlogic.gdx.math.Vector2;
-import net.macmv.tankbattles.lib.proto.PlayerEventReq;
-import net.macmv.tankbattles.lib.proto.Tank;
+import com.badlogic.gdx.math.Vector3;
+import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
+import net.macmv.tankbattles.projectile.Projectile;
 
 import java.util.HashMap;
 
@@ -12,6 +12,7 @@ public class ServerGame {
   private final long tickStartTime;
   private HashMap<Integer, Player> players = new HashMap<>();
   private HashMap<Integer, Long> lastMove = new HashMap<>();
+  private HashMap<Integer, Projectile> projectiles = new HashMap<>();
 
   public ServerGame() {
     tickStartTime = System.currentTimeMillis();
@@ -31,35 +32,55 @@ public class ServerGame {
     return hash;
   }
 
-  public boolean checkAndMove(PlayerEventReq req) {
+  public long getTick() {
+    return (System.currentTimeMillis() - tickStartTime) / 50;
+  }
+
+  public PlayerMoveRes checkAndMove(PlayerMoveReq req, long tick) {
     net.macmv.tankbattles.lib.proto.Player p = req.getPlayer();
-    if (!lastMove.containsKey(p.getId())) {
+    if (!lastMove.containsKey(p.getId())) { // new player
       lastMove.put(p.getId(), getTick());
-      return true;
+      return null;
     }
-    if (req.getTick() == lastMove.get(p.getId())) { // new player, so no entry, or made two requests on same tick
+    if (tick == lastMove.get(p.getId())) {
       System.out.println("Skipping move req as they sent it twice in one tick");
-      return true;
+      return null;
     }
-    Vector2 newPos = new Vector2(p.getPos().getX(), p.getPos().getY());
-    Vector2 oldPos = players.get(p.getId()).getPos();
+    Vector3 newPos = new Vector3(p.getPos().getX(), p.getPos().getY(), p.getPos().getZ());
+    Vector3 oldPos = players.get(p.getId()).getPos();
     float distance = newPos.dst(oldPos);
-    long ticks = req.getTick() - lastMove.get(p.getId());
+    long ticks = tick - lastMove.get(p.getId());
     float speed = distance / (float) ticks; // tiles per tick
-    lastMove.put(p.getId(), req.getTick());
+    lastMove.put(p.getId(), tick);
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
     players.get(p.getId()).setTurretDirection(p.getTurretDirection());
     float allowedSpeed = 0.1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
     if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we need to worry about slow connections more
       players.get(p.getId()).updatePos(newPos, p.getDirection());
-      return true;
     } else {
       players.get(p.getId()).updatePos(oldPos, p.getDirection());
-      return false;
     }
+    PlayerMoveRes.Builder res = PlayerMoveRes.newBuilder();
+    players.values().forEach(player -> {
+      res.addPlayer(player.toProto());
+    });
+    return res.build();
   }
 
-  public long getTick() {
-    return (System.currentTimeMillis() - tickStartTime) / 50;
+  public PlayerFireRes checkFire(PlayerFireReq req, long tick) {
+    Player player = players.get(req.getId());
+    Vector3 pos = new Vector3(req.getProjectilePos().getX(), req.getProjectilePos().getY(), req.getProjectilePos().getZ());
+    Vector3 vel = new Vector3(req.getProjectileVel().getX(), req.getProjectileVel().getY(), req.getProjectileVel().getZ());
+    if (pos.dst(player.getPos()) < 5) { // close enough
+      int id = (int) (Math.random() * Integer.MAX_VALUE);
+      projectiles.put(id, new Projectile(pos, vel, id, false));
+    } else {
+      System.out.println("Player sent invalid projectile");
+    }
+    PlayerFireRes.Builder res = PlayerFireRes.newBuilder();
+    projectiles.values().forEach(projectile -> {
+      res.addProjectile(projectile.toProto());
+    });
+    return res.build();
   }
 }
