@@ -11,15 +11,11 @@ import net.macmv.tankbattles.lib.proto.Point3;
 
 public class Projectile {
   public final int id;
+  private final boolean useTextures;
   private Vector3 pos = new Vector3();
   private Vector3 vel = new Vector3();
   private ModelInstance modelInst;
   private static Model model;
-
-  public Projectile() {
-    modelInst = new ModelInstance(model);
-    id = (int) (Math.random() * Integer.MAX_VALUE);
-  }
 
   public Projectile(Vector3 pos, Vector3 vel, int id) {
     this(pos, vel, id, true);
@@ -29,30 +25,33 @@ public class Projectile {
     if (useTextures) {
       modelInst = new ModelInstance(model);
     }
+    this.useTextures = useTextures;
     this.pos.set(pos);
     this.vel.set(vel);
     this.id = id;
   }
 
   public static Projectile fromProto(net.macmv.tankbattles.lib.proto.Projectile proj) {
-    Projectile newProj = new Projectile();
-    newProj.pos.set(proj.getPos().getX(), proj.getPos().getY(), proj.getPos().getZ());
-    newProj.vel.set(proj.getVel().getX(), proj.getVel().getY(), proj.getVel().getZ());
-    return newProj;
+    Vector3 pos = new Vector3(proj.getPos().getX(), proj.getPos().getY(), proj.getPos().getZ());
+    Vector3 vel = new Vector3(proj.getVel().getX(), proj.getVel().getY(), proj.getVel().getZ());
+    return new Projectile(pos, vel, proj.getId());
   }
 
   public net.macmv.tankbattles.lib.proto.Projectile toProto() {
     net.macmv.tankbattles.lib.proto.Projectile.Builder newProj = net.macmv.tankbattles.lib.proto.Projectile.newBuilder();
     newProj.setPos(Point3.newBuilder().setX(pos.x).setY(pos.y).setZ(pos.z).build());
     newProj.setVel(Point3.newBuilder().setX(vel.x).setY(vel.y).setZ(vel.z).build());
+    newProj.setId(id);
     return newProj.build();
   }
 
   public void update(float delta) {
     Vector3 oldPos = pos.cpy();
     pos.add(vel.x * delta, vel.y * delta, vel.z * delta);
-    modelInst.transform.setToRotation(Vector3.Y, new Vector2(oldPos.x, oldPos.z).sub(new Vector2(pos.x, pos.z)).angle() * -1);
-    modelInst.transform.setTranslation(pos);
+    if (useTextures) {
+      modelInst.transform.setToRotation(Vector3.Y, new Vector2(oldPos.x, oldPos.z).sub(new Vector2(pos.x, pos.z)).angle() * -1);
+      modelInst.transform.setTranslation(pos);
+    }
   }
 
   public void render(ModelBatch batch, Environment env) {

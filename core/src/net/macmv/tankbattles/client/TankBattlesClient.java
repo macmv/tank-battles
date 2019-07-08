@@ -39,9 +39,16 @@ public class TankBattlesClient {
   public void move(Game game, Player player, AssetManager assetManager) {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     req.setPlayer(player.toProto());
-    PlayerMoveRes res = sendEvent(req.build());
+    PlayerEventRes res = sendEvent(req.build());
+    res.getFireRes().getProjectileList().forEach(serverProj -> {
+      if (game.getProjectile(serverProj.getId()) != null) {
+        game.getProjectile(serverProj.getId()).updatePos(serverProj.getPos(), serverProj.getVel());
+      } else {
+        game.addProjectile(serverProj.getPos(), serverProj.getVel(), serverProj.getId());
+      }
+    });
     HashMap<Integer, Player> localPlayers = game.getPlayers();
-    res.getPlayerList().forEach(serverPlayer -> {
+    res.getMoveRes().getPlayerList().forEach(serverPlayer -> {
       if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me
         if (!(new Vector3(serverPlayer.getPos().getX(), serverPlayer.getPos().getY(), serverPlayer.getPos().getZ()).equals(player.getPos()))) { // if server corrected my move
           game.getPlayer().setPos(serverPlayer.getPos());
@@ -63,9 +70,8 @@ public class TankBattlesClient {
     PlayerFireReq.Builder req = PlayerFireReq.newBuilder();
     req.setProjectilePos(Point3.newBuilder().setX(projPos.x).setY(projPos.y).setZ(projPos.z));
     req.setProjectileVel(Point3.newBuilder().setX(projVel.x).setY(projVel.y).setZ(projVel.z));
-    req.setId(game.getPlayer().getId());
+    req.setPlayerId(game.getPlayer().getId());
     PlayerFireRes res = sendEvent(req.build());
-    System.out.println("Got res, projectiles: " + res);
     res.getProjectileList().forEach(serverProj -> {
       if (game.getProjectile(serverProj.getId()) != null) {
         game.getProjectile(serverProj.getId()).updatePos(serverProj.getPos(), serverProj.getVel());
@@ -106,11 +112,12 @@ public class TankBattlesClient {
     return (System.currentTimeMillis() - timeTicksStart) / 50; // ticks are 50 millis
   }
 
-  public PlayerMoveRes sendEvent(PlayerMoveReq e) {
-    return sendEvent(PlayerEventReq.newBuilder().setMoveReq(e).setMoveReqBool(true)).getMoveRes();
+  public PlayerEventRes sendEvent(PlayerMoveReq e) {
+    return sendEvent(PlayerEventReq.newBuilder().setMoveReq(e).setMoveReqBool(true));
   }
 
   public PlayerFireRes sendEvent(PlayerFireReq e) {
+    logger.info("Sending fireEvent " + e);
     return sendEvent(PlayerEventReq.newBuilder().setFireReq(e).setFireReqBool(true)).getFireRes();
   }
 

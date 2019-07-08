@@ -13,6 +13,7 @@ public class ServerGame {
   private HashMap<Integer, Player> players = new HashMap<>();
   private HashMap<Integer, Long> lastMove = new HashMap<>();
   private HashMap<Integer, Projectile> projectiles = new HashMap<>();
+  private long lastProjectileUpdate;
 
   public ServerGame() {
     tickStartTime = System.currentTimeMillis();
@@ -67,8 +68,8 @@ public class ServerGame {
     return res.build();
   }
 
-  public PlayerFireRes checkFire(PlayerFireReq req, long tick) {
-    Player player = players.get(req.getId());
+  public void checkFire(PlayerFireReq req, long tick) {
+    Player player = players.get(req.getPlayerId());
     Vector3 pos = new Vector3(req.getProjectilePos().getX(), req.getProjectilePos().getY(), req.getProjectilePos().getZ());
     Vector3 vel = new Vector3(req.getProjectileVel().getX(), req.getProjectileVel().getY(), req.getProjectileVel().getZ());
     if (pos.dst(player.getPos()) < 5) { // close enough
@@ -77,10 +78,20 @@ public class ServerGame {
     } else {
       System.out.println("Player sent invalid projectile");
     }
+  }
+
+  public PlayerFireRes generateFireRes() {
     PlayerFireRes.Builder res = PlayerFireRes.newBuilder();
+    if (lastProjectileUpdate == 0) {
+      lastProjectileUpdate = System.currentTimeMillis();
+    }
+    float projectileUpdateDelta = (System.currentTimeMillis() - lastProjectileUpdate) / 1000f;
     projectiles.values().forEach(projectile -> {
+      projectile.update(projectileUpdateDelta);
       res.addProjectile(projectile.toProto());
     });
+    lastProjectileUpdate = System.currentTimeMillis();
+    System.out.println("Sending fireRes " + res);
     return res.build();
   }
 }
