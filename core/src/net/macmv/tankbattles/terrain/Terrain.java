@@ -8,7 +8,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.utils.UBJsonReader;
 import net.macmv.tankbattles.Game;
 
@@ -51,6 +54,9 @@ public class Terrain {
     for (int y = 0; y < 10; y++) {
       for (int x = 0; x < 10; x++) {
         ModelInstance inst = new ModelInstance(model);
+        Matrix4 trans = new Matrix4();
+        trans.setTranslation(x, 0, y);
+        game.getCollisionManager().addObject(trans,0, new btBoxShape(new Vector3(0.5f, 0.01f, 0.5f)));
         inst.transform.setTranslation(x, 0, y);
         if (Math.random() > 0.1) {
           inst.nodes.get(2).parts.get(0).enabled = false;

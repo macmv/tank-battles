@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.client.ClientThread;
+import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
@@ -18,17 +19,20 @@ public class Game {
   private final HashMap<Integer, Player> players;
   private final Player player;
   private final Terrain terrain;
+  private final CollisionManager collisionManager;
   private ArrayList<Projectile> projectiles = new ArrayList<>();
   private Projectile newProjectile;
 
   public Game() {
     this.client = new ClientThread(this);
-    player = new Player();
+    collisionManager = new CollisionManager();
+    player = new Player(collisionManager);
     players = client.newPlayer();
     terrain = new Terrain(this, Terrain.Type.GRASS);
   }
 
   public void update(float delta, AssetManager assetManager) {
+    collisionManager.update(delta);
     int left = 0;
     int right = 0;
     if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
@@ -113,5 +117,9 @@ public class Game {
 
   public void clearNewProjectile() {
     newProjectile = null;
+  }
+
+  public CollisionManager getCollisionManager() {
+    return collisionManager;
   }
 }

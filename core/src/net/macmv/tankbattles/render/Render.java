@@ -83,6 +83,10 @@ public class Render {
     });
 
     batch.end();
+
+    game.getCollisionManager().getDebugDrawer().begin(cam);
+    game.getCollisionManager().debugDrawWorld();
+    game.getCollisionManager().getDebugDrawer().end();
   }
 
   public void dispose() {

@@ -1,9 +1,13 @@
 package net.macmv.tankbattles.player;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import net.macmv.tankbattles.Game;
+import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.proto.Point2;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.render.Skin;
@@ -16,44 +20,44 @@ public class Player {
   private int direction; // in degrees
   private Vector2 turretDirection; // degrees, -1 to 1
   private Vector2 turretTarget; // degrees, -1 to 1
+  private final btRigidBody body;
+  private Vector3 prevNewPos;
 
-  public Player(int id, net.macmv.tankbattles.lib.proto.Tank tank) {
+  public Player(CollisionManager collisionManager, int id, net.macmv.tankbattles.lib.proto.Tank tank) {
     this.id = id;
     this.tank = Tank.fromProto(tank, true);
     pos = new Vector3();
     turretDirection = new Vector2();
     turretTarget = new Vector2();
+    Matrix4 trans = new Matrix4();
+    trans.setTranslation(0, 1, 0);
+    body = collisionManager.addObject(trans, 1, new btBoxShape(new Vector3(1, 0.25f, 1)));
   }
 
-  public Player(int id, net.macmv.tankbattles.lib.proto.Tank tank, boolean loadTexture) {
+  public Player(CollisionManager collisionManager, int id, net.macmv.tankbattles.lib.proto.Tank tank, boolean loadTexture) {
     this.id = id;
     System.out.println(loadTexture);
     this.tank = Tank.fromProto(tank, loadTexture);
     pos = new Vector3();
     turretDirection = new Vector2();
     turretTarget = new Vector2();
+    Matrix4 trans = new Matrix4();
+    trans.setTranslation(0, 1, 0);
+    body = collisionManager.addObject(trans, 1, new btBoxShape(new Vector3(1, 0.25f, 1)));
   }
 
-  public Player() {
+  public Player(CollisionManager collisionManager) {
     id = (int) (Math.random() * Integer.MAX_VALUE);
     tank = new Tank(Skin.getDefault());
     pos = new Vector3();
     turretDirection = new Vector2();
     turretTarget = new Vector2();
+    Matrix4 trans = new Matrix4();
+    trans.setTranslation(0, 1, 0);
+    body = collisionManager.addObject(trans, 1, new btBoxShape(new Vector3(1, 0.25f, 1)));
   }
 
   public void updateAnimations() {
-    updateAnimations(pos, direction);
-  }
-
-  public void updateAnimations(Point3 pos, int direction) {
-    this.pos.set(pos.getX(), pos.getY(), pos.getZ());
-    updateAnimations(this.pos, direction);
-  }
-
-  public void updateAnimations(Vector3 pos, int direction) {
-    this.pos.set(pos);
-    this.direction = direction;
     if (tank.useTexture && tank.getModel() != null) {
       tank.getModel().transform.setToRotation(Vector3.Y, -direction + 180);
       tank.getModel().transform.setTranslation(pos.x, pos.y, pos.z);
@@ -82,8 +86,8 @@ public class Player {
     tank.setTurretRotation(direction - turretDirection.x);
   }
 
-  public static Player fromProto(net.macmv.tankbattles.lib.proto.Player p) {
-    Player newPlayer = new Player();
+  public static Player fromProto(CollisionManager collisionManager, net.macmv.tankbattles.lib.proto.Player p) {
+    Player newPlayer = new Player(collisionManager);
     newPlayer.id = p.getId();
     newPlayer.pos = new Vector3(p.getPos().getX(), p.getPos().getY(), p.getPos().getZ());
     newPlayer.tank = Tank.fromProto(p.getTank());
@@ -131,16 +135,11 @@ public class Player {
       deltaDir = left;
     }
     float turretDirChange = deltaDir * deltaTime * ((left != 0 && right != 0) ? 150 : 80);
-    direction += turretDirChange;
     turretDirection.x += turretDirChange;
     float x = (float) Math.cos((direction - 90) / 180.0 * Math.PI);
     float y = (float) Math.sin((direction - 90) / 180.0 * Math.PI);
     Vector3 posDelta = new Vector3(x, 0, y).scl(deltaVel * deltaTime * 1.75f); // 1.75 is speed
-    pos.add(posDelta);
-    // TODO: check collisions with stuff here
-    if (false/* collision */) {
-      pos.sub(posDelta);
-    }
+    moveTo(new Vector3(0, 0, 0).add(pos.x, 0, pos.z).add(posDelta), direction + (int) turretDirChange);
     updateAnimations();
   }
 
@@ -169,12 +168,27 @@ public class Player {
     turretTarget.set(this.turretDirection);
   }
 
-  public void setPos(Point3 pos) {
-    this.pos.set(pos.getX(), pos.getY(), pos.getZ());
+  public void moveTo(Point3 newPos, int direction) {
+    moveTo(new Vector3().set(newPos.getX(), newPos.getY(), newPos.getZ()), direction);
   }
 
-  public void updatePos(Vector3 newPos, int direction) {
-    this.pos.set(newPos);
+  public void moveTo(Vector3 newPos, int direction) {
+    Matrix4 trans = new Matrix4();
+    body.getMotionState().getWorldTransform(trans);
+    Vector3 bodyPos = trans.getTranslation(Vector3.Zero);
+    Vector3 impulse = newPos.cpy().sub(bodyPos).scl(20f);
+    impulse.y = 0;
+    body.activate();
+    body.clearForces();
+    body.applyCentralImpulse(impulse);
     this.direction = direction;
+    trans = new Matrix4();
+    body.getMotionState().getWorldTransform(trans);
+    bodyPos = trans.getTranslation(Vector3.Zero);
+    this.pos.set(bodyPos);
+//    if (newPos.equals(prevNewPos)) {
+//      body.clearForces();
+//    }
+//    prevNewPos = newPos;
   }
 }

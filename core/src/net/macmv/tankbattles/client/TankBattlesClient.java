@@ -49,16 +49,17 @@ public class TankBattlesClient {
     });
     HashMap<Integer, Player> localPlayers = game.getPlayers();
     res.getMoveRes().getPlayerList().forEach(serverPlayer -> {
-      if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me
-        if (!(new Vector3(serverPlayer.getPos().getX(), serverPlayer.getPos().getY(), serverPlayer.getPos().getZ()).equals(player.getPos()))) { // if server corrected my move
-          game.getPlayer().setPos(serverPlayer.getPos());
+      if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me                                              more than half a tile off
+        if (!(new Vector3(serverPlayer.getPos().getX(), serverPlayer.getPos().getY(), serverPlayer.getPos().getZ()).dst(player.getPos()) < 0.5)) { // if server corrected my move
+          game.getPlayer().moveTo(serverPlayer.getPos(), serverPlayer.getDirection());
         }
       } else { // serverPlayer is not me
         if (localPlayers.containsKey(serverPlayer.getId())) { // stored this player
           localPlayers.get(serverPlayer.getId()).setTurretDirection(serverPlayer.getTurretDirection());
-          localPlayers.get(serverPlayer.getId()).updateAnimations(serverPlayer.getPos(), serverPlayer.getDirection()); // update local player to server
+          localPlayers.get(serverPlayer.getId()).moveTo(serverPlayer.getPos(), serverPlayer.getDirection());
+          localPlayers.get(serverPlayer.getId()).updateAnimations(); // update local player to server
         } else { // new player
-          Player newPlayer = Player.fromProto(serverPlayer);
+          Player newPlayer = Player.fromProto(game.getCollisionManager(), serverPlayer);
           newPlayer.loadAssets(assetManager);
           localPlayers.put(serverPlayer.getId(), newPlayer);
         }
@@ -100,7 +101,7 @@ public class TankBattlesClient {
     HashMap<Integer, Player> hash = new HashMap<>();
     res.getPlayerList().forEach(p -> {
       if (p.getId() != game.getPlayer().getId()) {
-        hash.put(p.getId(), Player.fromProto(p));
+        hash.put(p.getId(), Player.fromProto(game.getCollisionManager(), p));
       }
     });
     timeTicksStart = System.currentTimeMillis() - res.getTick() * 50;
@@ -117,7 +118,6 @@ public class TankBattlesClient {
   }
 
   public PlayerFireRes sendEvent(PlayerFireReq e) {
-    logger.info("Sending fireEvent " + e);
     return sendEvent(PlayerEventReq.newBuilder().setFireReq(e).setFireReqBool(true)).getFireRes();
   }
 
