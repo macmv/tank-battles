@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
+import net.macmv.tankbattles.lib.proto.TerrainMap;
 
 public class Tile {
   private ModelInstance inst;
   private final Vector3 pos;
-  private final Terrain.Type type;
+  private final TerrainMap.Tile.Type type;
 
-  public Tile(Vector3 pos, Terrain.Type type) {
+  public Tile(Vector3 pos, TerrainMap.Tile.Type type) {
     this.pos = pos;
     this.type = type;
   }

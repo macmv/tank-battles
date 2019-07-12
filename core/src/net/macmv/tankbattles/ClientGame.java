@@ -29,7 +29,7 @@ public class ClientGame implements Game {
     collisionManager = new CollisionManager();
     player = new Player(collisionManager);
     players = client.newPlayer();
-    terrain = new Terrain(this, Terrain.Type.GRASS, "");
+    terrain = new Terrain(this, "");
   }
 
   public void update(float delta, AssetManager assetManager) {

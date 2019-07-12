@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 public class Terrain {
   private final Game game;
-  private final Type type;
   private final boolean useTextures;
   private final HashMap<Vector3, Tile> tiles = new HashMap<>();
   private final int width;
@@ -24,9 +23,8 @@ public class Terrain {
   private final Environment env;
   private TileSkin tileSkin;
 
-  public Terrain(Game game, Type type, String filename, boolean useTextures) {
+  public Terrain(Game game, String filename, boolean useTextures) {
     this.useTextures = useTextures;
-    this.type = type;
     this.game = game;
     env = new Environment();
     env.set(new ColorAttribute(ColorAttribute.AmbientLight, 1f, 1f, 1, 0));
@@ -38,8 +36,8 @@ public class Terrain {
     tileSkin = new TileSkin();
   }
 
-  public Terrain(Game game, Type type, String filename) {
-    this(game, type, filename, true);
+  public Terrain(Game game, String filename) {
+    this(game, filename, true);
   }
 
   private Vector3 loadMap(String filename) {
@@ -49,7 +47,7 @@ public class Terrain {
         Matrix4 trans = new Matrix4();
         trans.setTranslation(x, 0, y);
         game.getCollisionManager().addObject(trans, 0, new btBoxShape(new Vector3(0.5f, 0.01f, 0.5f)));
-        tiles.put(new Vector3(x, 0, y), new Tile(new Vector3(x, 0, y), Type.GRASS));
+        tiles.put(new Vector3(x, 0, y), new Tile(new Vector3(x, 0, y), TerrainMap.Tile.Type.GRASS));
       }
     }
     return new Vector3(10, 1, 10);
@@ -94,9 +92,5 @@ public class Terrain {
       newMap.putPlanes(y, newPlane.build());
     }
     return newMap.build();
-  }
-
-  public enum Type {
-    GRASS/*, SAND, ROCK*/
   }
 }

@@ -113,7 +113,13 @@ message TerrainMap {
   }
 
   message Tile {
-    int32 id = 1;
+    Type type = 1;
+
+    enum Type {
+      GRASS = 0;
+      SAND = 1;
+      ROCK = 2;
+    }
   }
 }
 

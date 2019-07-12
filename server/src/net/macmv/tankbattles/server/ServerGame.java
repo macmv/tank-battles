@@ -25,7 +25,7 @@ public class ServerGame implements Game {
     tickStartTime = System.currentTimeMillis();
     lastCollisionUpdate = System.currentTimeMillis();
     collisionManager = new CollisionManager(false);
-    terrain = new Terrain(this, Terrain.Type.GRASS, "", false);
+    terrain = new Terrain(this, "", false);
   }
 
   public void addPlayer(int id, Tank tank) {

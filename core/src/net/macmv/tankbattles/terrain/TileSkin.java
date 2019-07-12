@@ -3,15 +3,16 @@ package net.macmv.tankbattles.terrain;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
+import net.macmv.tankbattles.lib.proto.TerrainMap;
 
 import java.util.HashMap;
 
 public class TileSkin {
 
-  private HashMap<Terrain.Type, Model> models = new HashMap<>();
+  private HashMap<TerrainMap.Tile.Type, Model> models = new HashMap<>();
   private Model model;
 
-  public Model loadAssets(AssetManager assetManager, Terrain.Type type) {
+  public Model loadAssets(AssetManager assetManager, TerrainMap.Tile.Type type) {
     if (model == null) {
       model = assetManager.get("terrain/exported.g3db");
     }
