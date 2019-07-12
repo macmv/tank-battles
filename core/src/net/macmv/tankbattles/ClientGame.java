@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.client.ClientThread;
 import net.macmv.tankbattles.collision.CollisionManager;
+import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
@@ -14,7 +15,7 @@ import net.macmv.tankbattles.terrain.Terrain;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Game {
+public class ClientGame implements Game {
   private final ClientThread client;
   private final HashMap<Integer, Player> players;
   private final Player player;
@@ -23,7 +24,7 @@ public class Game {
   private ArrayList<Projectile> projectiles = new ArrayList<>();
   private Projectile newProjectile;
 
-  public Game() {
+  public ClientGame() {
     this.client = new ClientThread(this);
     collisionManager = new CollisionManager();
     player = new Player(collisionManager);

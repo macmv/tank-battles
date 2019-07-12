@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import net.macmv.tankbattles.Game;
+import net.macmv.tankbattles.ClientGame;
 import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
 
@@ -36,7 +36,7 @@ public class TankBattlesClient {
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
   }
 
-  public void move(Game game, Player player, AssetManager assetManager) {
+  public void move(ClientGame game, Player player, AssetManager assetManager) {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     req.setPlayer(player.toProto());
     PlayerEventRes res = sendEvent(req.build());
@@ -49,10 +49,8 @@ public class TankBattlesClient {
     });
     HashMap<Integer, Player> localPlayers = game.getPlayers();
     res.getMoveRes().getPlayerList().forEach(serverPlayer -> {
-      if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me                                              more than half a tile off
-        if (!(new Vector3(serverPlayer.getPos().getX(), serverPlayer.getPos().getY(), serverPlayer.getPos().getZ()).dst(player.getPos()) < 0.5)) { // if server corrected my move
-          game.getPlayer().moveTo(serverPlayer.getPos(), serverPlayer.getDirection());
-        }
+      if (serverPlayer.getId() == game.getPlayer().getId()) { // serverPlayer is me
+        game.getPlayer().moveTo(serverPlayer.getPos(), serverPlayer.getDirection()); // moveTo just applies a bit of vel to stay the same as server
       } else { // serverPlayer is not me
         if (localPlayers.containsKey(serverPlayer.getId())) { // stored this player
           localPlayers.get(serverPlayer.getId()).setTurretDirection(serverPlayer.getTurretDirection());
@@ -67,7 +65,7 @@ public class TankBattlesClient {
     });
   }
 
-  public void fire(Game game, Vector3 projPos, Vector3 projVel) {
+  public void fire(ClientGame game, Vector3 projPos, Vector3 projVel) {
     PlayerFireReq.Builder req = PlayerFireReq.newBuilder();
     req.setProjectilePos(Point3.newBuilder().setX(projPos.x).setY(projPos.y).setZ(projPos.z));
     req.setProjectileVel(Point3.newBuilder().setX(projVel.x).setY(projVel.y).setZ(projVel.z));
@@ -82,7 +80,7 @@ public class TankBattlesClient {
     });
   }
 
-  public HashMap<Integer, Player> newPlayer(Player player, Game game) {
+  public HashMap<Integer, Player> newPlayer(Player player, ClientGame game) {
     PlayerJoinReq.Builder req = PlayerJoinReq.newBuilder();
     req.setId(player.getId());
     req.setTank(player.getTank().toProto());

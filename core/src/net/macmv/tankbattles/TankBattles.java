@@ -7,12 +7,12 @@ import com.badlogic.gdx.InputProcessor;
 import net.macmv.tankbattles.render.Render;
 
 public class TankBattles extends ApplicationAdapter implements InputProcessor {
-  private Game game;
+  private ClientGame game;
   private Render render;
 
   @Override
   public void create() {
-    game = new Game();
+    game = new ClientGame();
     render = new Render(game);
     Gdx.input.setInputProcessor(this);
   }

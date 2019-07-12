@@ -2,7 +2,7 @@ package net.macmv.tankbattles.client;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.utils.Timer;
-import net.macmv.tankbattles.Game;
+import net.macmv.tankbattles.ClientGame;
 import net.macmv.tankbattles.lib.proto.PlayerEventReq;
 import net.macmv.tankbattles.player.Player;
 
@@ -11,11 +11,11 @@ import java.util.HashMap;
 
 public class ClientThread {
 
-  private Game game;
+  private ClientGame game;
   private TankBattlesClient client;
   private ArrayList<PlayerEventReq> eventQueue = new ArrayList<>();
 
-  public ClientThread(Game game) {
+  public ClientThread(ClientGame game) {
     this.client = new TankBattlesClient("192.168.0.45", 8001);
     this.game = game;
   }

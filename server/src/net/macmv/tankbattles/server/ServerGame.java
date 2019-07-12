@@ -2,15 +2,18 @@ package net.macmv.tankbattles.server;
 
 import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.collision.CollisionManager;
+import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
+import net.macmv.tankbattles.terrain.Terrain;
 
 import java.util.HashMap;
 
-public class ServerGame {
+public class ServerGame implements Game {
 
   private final long tickStartTime;
+  private final Terrain terrain;
   private HashMap<Integer, Player> players = new HashMap<>();
   private HashMap<Integer, Long> lastMove = new HashMap<>();
   private HashMap<Integer, Projectile> projectiles = new HashMap<>();
@@ -22,6 +25,8 @@ public class ServerGame {
     tickStartTime = System.currentTimeMillis();
     lastCollisionUpdate = System.currentTimeMillis();
     collisionManager = new CollisionManager(false);
+    terrain = new Terrain(this, Terrain.Type.GRASS, false);
+    terrain.loadAssets(null);
   }
 
   public void addPlayer(int id, Tank tank) {
@@ -54,20 +59,22 @@ public class ServerGame {
     }
     Vector3 newPos = new Vector3(p.getPos().getX(), 0, p.getPos().getZ());
     Vector3 oldPos = players.get(p.getId()).getPos().cpy();
-    oldPos.y = 0;
     float distance = newPos.dst(oldPos);
     long ticks = tick - lastMove.get(p.getId());
     float speed = distance / (float) ticks; // tiles per tick
     lastMove.put(p.getId(), tick);
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
     players.get(p.getId()).setTurretDirection(p.getTurretDirection());
-    float allowedSpeed = 0.1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
+    float allowedSpeed = 1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
     collisionManager.update((System.currentTimeMillis() - lastCollisionUpdate) / 1000f);
     lastCollisionUpdate = System.currentTimeMillis();
+    System.out.println("Speed: " + speed);
     if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we need to worry about slow connections more
       players.get(p.getId()).moveTo(newPos, p.getDirection());
+      System.out.println("Sending player move res at newPos: " + newPos);
     } else {
       players.get(p.getId()).moveTo(oldPos, p.getDirection());
+      System.out.println("Sending player move res at oldPos: " + oldPos);
     }
     PlayerMoveRes.Builder res = PlayerMoveRes.newBuilder();
     players.values().forEach(player -> {
@@ -100,5 +107,10 @@ public class ServerGame {
     });
     lastProjectileUpdate = System.currentTimeMillis();
     return res.build();
+  }
+
+  @Override
+  public CollisionManager getCollisionManager() {
+    return collisionManager;
   }
 }
