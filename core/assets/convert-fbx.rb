@@ -1,5 +1,5 @@
 
-fbx_files =  Dir.glob("../../../../assets/**/*.fbx")
+fbx_files =  Dir.glob("./**/*.fbx")
 
 p fbx_files
 

@@ -5,12 +5,9 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.UBJsonReader;
 
 public class Tile {
-  private static G3dModelLoader loader = new G3dModelLoader(new UBJsonReader());
   private ModelInstance inst;
   private final Vector3 pos;
   private final Terrain.Type type;
