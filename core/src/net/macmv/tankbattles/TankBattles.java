@@ -44,6 +44,9 @@ public class TankBattles extends ApplicationAdapter implements InputProcessor {
     if (keycode == Input.Keys.ESCAPE) {
       Gdx.app.exit();
       return true;
+    } else if (keycode == Input.Keys.F1) {
+      render.toggleDebug();
+      return true;
     }
     return false;
   }

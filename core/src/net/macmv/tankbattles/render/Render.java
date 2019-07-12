@@ -17,6 +17,7 @@ public class Render {
   private final ClientGame game;
   private boolean loading;
   private float prevDirection;
+  private boolean debug = false;
 
   public Render(ClientGame game) {
     this.game = game;
@@ -84,9 +85,11 @@ public class Render {
 
     batch.end();
 
-    game.getCollisionManager().getDebugDrawer().begin(cam);
-    game.getCollisionManager().debugDrawWorld();
-    game.getCollisionManager().getDebugDrawer().end();
+    if (debug) {
+      game.getCollisionManager().getDebugDrawer().begin(cam);
+      game.getCollisionManager().debugDrawWorld();
+      game.getCollisionManager().getDebugDrawer().end();
+    }
   }
 
   public void dispose() {
@@ -96,5 +99,9 @@ public class Render {
 
   public AssetManager getAssetManager() {
     return assetManager;
+  }
+
+  public void toggleDebug() {
+    debug = !debug;
   }
 }
