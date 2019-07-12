@@ -20,7 +20,7 @@ message PlayerJoinReq {
 // sent to all players
 message PlayerJoinRes {
   repeated Player player = 1;
-  int32 mapId = 2; // TODO: maps
+  TerrainMap map = 2;
   int64 tick = 3;
 }
 
@@ -97,6 +97,24 @@ message Projectile {
   int32 id = 1;
   Point3 pos = 2;
   Point3 vel = 3;
+}
+
+message TerrainMap {
+  map<int32, Plane> planes = 1;
+  int32 width = 2;
+  int32 length = 3;
+  int32 height = 4;
+
+  message Plane {
+    map<int32, Row> rows = 1;
+    message Row {
+      map<int32, Tile> tiles = 1;
+    }
+  }
+
+  message Tile {
+    int32 id = 1;
+  }
 }
 
 // that's just a point
