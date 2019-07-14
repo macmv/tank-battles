@@ -42,7 +42,7 @@ public class Render {
     if (viewMode == Mode.SPECTATOR) {
       mapEditor = new MapEditor(this, game);
       spectatorPos = new Vector3(-10, 10, 0);
-      camAngle = new Vector2();
+      camAngle = new Vector2(0, 70);
     } else {
       mapEditor = null;
       spectatorPos = null;
@@ -128,14 +128,18 @@ public class Render {
 
       if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-          spectatorPos.add(cam.direction.cpy().scl(0.0015f).rotate(new Vector3(0.5f, 0.5f, 0), 90).scl(Gdx.input.getDeltaX()));
-          spectatorPos.add(cam.direction.cpy().scl(0.0015f).rotate(Vector3.Z, 90).scl(Gdx.input.getDeltaY()));
+          float a = (float) Math.cos((camAngle.x) / 180.0 * Math.PI);
+          float b = (float) Math.sin((camAngle.x) / 180.0 * Math.PI);
+          spectatorPos.add(new Vector3(b, 0, a).scl(Gdx.input.getDeltaX()).scl(-0.2f));
+          float c = (float) Math.sin((camAngle.y + 90) / 180.0 * Math.PI);
+          float d = (float) Math.sin((camAngle.y) / 180.0 * Math.PI);
+          spectatorPos.add(new Vector3(c * a, d, c * -b).scl(Gdx.input.getDeltaY()).scl(0.2f));
         } else {
           camAngle.x += Gdx.input.getDeltaX();
           camAngle.y += Gdx.input.getDeltaY();
         }
       }
-      cam.direction.set(70, -90, 0);
+      cam.direction.set(1, -90, 0);
       cam.direction.rotate(cam.up, camAngle.x);
       cam.direction.rotate(tmp3.set(cam.direction).crs(cam.up).nor(), camAngle.y);
 
@@ -151,7 +155,7 @@ public class Render {
             Gdx.input.getY(),
             0));
     Vector3 posDelta = unprojected.sub(cam.position);
-    posDelta.scl(-amount * 5); // change to increase speed
+    posDelta.scl(-amount * 5); // change to increase sensitivity
     spectatorPos.add(posDelta);
   }
 
@@ -170,10 +174,6 @@ public class Render {
 
   public Camera getCamera() {
     return cam;
-  }
-
-  public MapEditor getMapEditor() {
-    return mapEditor;
   }
 
   public void toggleSpectator() {

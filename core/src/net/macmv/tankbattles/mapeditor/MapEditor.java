@@ -33,7 +33,7 @@ public class MapEditor {
   public void updateTarget(CollisionManager collisions) {
     Vector3 camPos = render.getCamera().position;
     Vector3 unprojected = render.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-    unprojected.sub(camPos).nor().scl(20).add(camPos);
+    unprojected.sub(camPos).nor().scl(100).add(camPos);
 
     callback.setCollisionObject(null); // reset values from last call
     callback.setClosestHitFraction(1f);
@@ -83,6 +83,8 @@ public class MapEditor {
   }
 
   public void placeTile() {
-    game.getTerrain().addTile(render.getAssetManager(), tileTarget, TerrainMap.Tile.Type.ROCK);
+    if (visible) {
+      game.getTerrain().addTile(render.getAssetManager(), tileTarget, TerrainMap.Tile.Type.ROCK);
+    }
   }
 }
