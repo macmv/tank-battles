@@ -48,6 +48,8 @@ public class TankBattlesMapEditor extends ApplicationAdapter implements InputPro
     } else if (keycode == Input.Keys.F1) {
       render.toggleDebug();
       return true;
+    } else if (keycode == Input.Keys.TAB) {
+      render.toggleSpectator();
     }
     return false;
   }
@@ -64,13 +66,11 @@ public class TankBattlesMapEditor extends ApplicationAdapter implements InputPro
 
   @Override
   public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    if (button != Input.Buttons.LEFT) {
-      return false;
+    if (button == Input.Buttons.LEFT) {
+      render.leftClick();
+      return true;
     }
-    synchronized (game.getPlayer()) {
-      game.getPlayer().fire(game);
-    }
-    return true;
+    return false;
   }
 
   @Override
@@ -90,6 +90,7 @@ public class TankBattlesMapEditor extends ApplicationAdapter implements InputPro
 
   @Override
   public boolean scrolled(int amount) {
-    return false;
+    render.scroll(amount);
+    return true;
   }
 }

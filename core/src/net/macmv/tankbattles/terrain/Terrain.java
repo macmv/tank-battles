@@ -29,6 +29,7 @@ public class Terrain {
   private final int length;
   private final Environment env;
   private TileSkin tileSkin;
+  private boolean loadedAssets = false;
 
   public Terrain(Game game, String filename, boolean useTextures) {
     this.useTextures = useTextures;
@@ -68,7 +69,7 @@ public class Terrain {
     proto.getPlanesMap().forEach((y, plane) -> {
       plane.getRowsMap().forEach((x, row) -> {
         row.getTilesMap().forEach((z, tile) -> {
-          addTile(new Vector3(x, y, z), tile.getType());
+          addTile(null, new Vector3(x, y, z), tile.getType());
         });
       });
     });
@@ -120,11 +121,15 @@ public class Terrain {
   }
 
   // for map editing
-  public void addTile(Vector3 pos, TerrainMap.Tile.Type type) {
+  public void addTile(AssetManager assetManager, Vector3 pos, TerrainMap.Tile.Type type) {
     Matrix4 trans = new Matrix4();
     trans.setTranslation(pos);
     game.getCollisionManager().addObject(trans, 0, new btBoxShape(new Vector3(0.5f, 0.5f, 0.5f)));
-    tiles.put(pos.cpy(), new Tile(pos.cpy(), type));
+    Tile newTile = new Tile(pos.cpy(), type);
+    tiles.put(pos.cpy(), newTile);
+    if (loadedAssets) {
+      newTile.loadAssets(assetManager, tileSkin);
+    }
   }
 
   public void save(String filename, boolean overwrite) {
@@ -162,5 +167,10 @@ public class Terrain {
     tiles.forEach((p, t) -> {
       t.loadAssets(assetManager, tileSkin);
     });
+    loadedAssets = true;
+  }
+
+  public TileSkin getTileSkin() {
+    return tileSkin;
   }
 }

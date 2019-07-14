@@ -10,14 +10,16 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
 import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.Game;
+import net.macmv.tankbattles.lib.proto.TerrainMap;
 import net.macmv.tankbattles.render.Render;
-import net.macmv.tankbattles.render.Skin;
+import net.macmv.tankbattles.terrain.TileSkin;
 
 public class MapEditor {
 
   private final Render render;
   private final Game game;
-  private final Vector3 target = new Vector3();
+  private final Vector3 viewTarget = new Vector3();
+  private final Vector3 tileTarget = new Vector3();
   private ModelInstance model;
   private final ClosestRayResultCallback callback = new ClosestRayResultCallback(new Vector3(), new Vector3());
   private boolean visible = false;
@@ -43,13 +45,30 @@ public class MapEditor {
             callback);
 
     if (callback.hasHit()) {
-      callback.getHitPointWorld(target);
+      callback.getHitPointWorld(viewTarget);
+      Vector3 nor = new Vector3();
+      callback.getHitNormalWorld(nor);
+      if (Math.abs(nor.x) > 0.5) {
+        viewTarget.y = (int) viewTarget.y;
+        viewTarget.z = (int) viewTarget.z;
+      } else if (Math.abs(nor.y) > 0.5) {
+        viewTarget.x = (int) viewTarget.x;
+        viewTarget.z = (int) viewTarget.z;
+      } else if (Math.abs(nor.z) > 0.5) {
+        viewTarget.x = (int) viewTarget.x;
+        viewTarget.y = (int) viewTarget.y;
+      }
+      tileTarget.set(viewTarget);
+      tileTarget.add(nor.scl(0.5f));
+      tileTarget.x = Math.round(tileTarget.x);
+      tileTarget.y = Math.round(tileTarget.y);
+      tileTarget.z = Math.round(tileTarget.z);
       visible = true;
     } else {
       visible = false;
     }
 
-    model.transform.setTranslation(target);
+    model.transform.setTranslation(tileTarget);
   }
 
   public void render(ModelBatch batch, Environment env) {
@@ -58,8 +77,12 @@ public class MapEditor {
     }
   }
 
-  public void loadAssets(AssetManager assetManager) {
-    Model m = Skin.getDefault().getModel();
+  public void loadAssets(AssetManager assetManager, TileSkin skins) {
+    Model m = skins.loadAssets(assetManager, TerrainMap.Tile.Type.SAND);
     model = new ModelInstance(m);
+  }
+
+  public void placeTile() {
+    game.getTerrain().addTile(render.getAssetManager(), tileTarget, TerrainMap.Tile.Type.ROCK);
   }
 }

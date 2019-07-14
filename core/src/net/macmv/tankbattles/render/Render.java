@@ -1,6 +1,7 @@
 package net.macmv.tankbattles.render;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -17,11 +18,13 @@ public class Render {
   private final ModelBatch batch;
   private final AssetManager assetManager;
   private final Game game;
-  private final Mode viewMode;
+  private Mode viewMode;
   private boolean loading;
   private float prevDirection;
   private boolean debug = false;
-  private MapEditor mapEditor;
+  private final MapEditor mapEditor;
+  private final Vector3 spectatorPos;
+  private final Vector2 camAngle;
 
   public Render(Game game, Mode viewMode) {
     this.game = game;
@@ -38,6 +41,12 @@ public class Render {
 
     if (viewMode == Mode.SPECTATOR) {
       mapEditor = new MapEditor(this, game);
+      spectatorPos = new Vector3(-10, 10, 0);
+      camAngle = new Vector2();
+    } else {
+      mapEditor = null;
+      spectatorPos = null;
+      camAngle = null;
     }
   }
 
@@ -56,7 +65,9 @@ public class Render {
       if (assetManager.update()) {
         System.out.println("DONE");
         game.loadAssets(assetManager);
-        mapEditor.loadAssets(assetManager);
+        if (viewMode == Mode.SPECTATOR) {
+          mapEditor.loadAssets(assetManager, game.getTerrain().getTileSkin());
+        }
         loading = false;
       } else { // TODO: progress bar here for loading
         System.out.println(assetManager.getProgress()); // is percent 0.0 to 1.0
@@ -115,13 +126,33 @@ public class Render {
     } else if (viewMode == Mode.SPECTATOR) {
       Gdx.input.setCursorCatched(false);
 
-      Vector3 pos = game.getPlayer().getPos();
+      if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
+          spectatorPos.add(cam.direction.cpy().scl(0.0015f).rotate(new Vector3(0.5f, 0.5f, 0), 90).scl(Gdx.input.getDeltaX()));
+          spectatorPos.add(cam.direction.cpy().scl(0.0015f).rotate(Vector3.Z, 90).scl(Gdx.input.getDeltaY()));
+        } else {
+          camAngle.x += Gdx.input.getDeltaX();
+          camAngle.y += Gdx.input.getDeltaY();
+        }
+      }
       cam.direction.set(70, -90, 0);
-      cam.position.set(pos.x - 10, 10, pos.z);
+      cam.direction.rotate(cam.up, camAngle.x);
+      cam.direction.rotate(tmp3.set(cam.direction).crs(cam.up).nor(), camAngle.y);
+
+      cam.position.set(spectatorPos.x, spectatorPos.y, spectatorPos.z);
       cam.update();
 
       mapEditor.updateTarget(game.getCollisionManager());
     }
+  }
+
+  public void scroll(int amount) {
+    Vector3 unprojected = cam.unproject(new Vector3(Gdx.input.getX(),
+            Gdx.input.getY(),
+            0));
+    Vector3 posDelta = unprojected.sub(cam.position);
+    posDelta.scl(-amount * 5); // change to increase speed
+    spectatorPos.add(posDelta);
   }
 
   public void dispose() {
@@ -139,6 +170,28 @@ public class Render {
 
   public Camera getCamera() {
     return cam;
+  }
+
+  public MapEditor getMapEditor() {
+    return mapEditor;
+  }
+
+  public void toggleSpectator() {
+    if (viewMode == Mode.SPECTATOR) {
+      viewMode = Mode.PLAYER;
+    } else {
+      viewMode = Mode.SPECTATOR;
+    }
+  }
+
+  public void leftClick() {
+    if (viewMode == Mode.SPECTATOR) {
+      mapEditor.placeTile();
+    } else {
+      synchronized (game.getPlayer()) {
+        game.getPlayer().fire(game);
+      }
+    }
   }
 
   public enum Mode {

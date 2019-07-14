@@ -27,7 +27,7 @@ height.times do |y|
     length.times do |z|
       tile = TerrainMap::Tile.new
       pos = Point3.new(x: x, y: y, z: z)
-      tile.type = TerrainMap::Tile::Type::ROCK
+      tile.type = TerrainMap::Tile::Type::GRASS
       tile.pos = pos
       row.tiles[z] = tile
     end
