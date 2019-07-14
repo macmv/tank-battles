@@ -67,6 +67,7 @@ public class ServerMain {
       PlayerJoinRes.Builder reply = PlayerJoinRes.newBuilder();
       reply.addAllPlayer(game.getPlayers().values());
       reply.setTick(game.getTick());
+      reply.setMap(game.getTerrain().toProto());
       responseObserver.onNext(reply.build());
       responseObserver.onCompleted();
       logger.info("Player joined, res: " + reply);

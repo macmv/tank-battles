@@ -25,7 +25,7 @@ public class ServerGame implements Game {
     tickStartTime = System.currentTimeMillis();
     lastCollisionUpdate = System.currentTimeMillis();
     collisionManager = new CollisionManager(false);
-    terrain = new Terrain(this, "", false);
+    terrain = new Terrain(this, "maps/tmp.map", false);
   }
 
   public void addPlayer(int id, Tank tank) {
@@ -111,5 +111,9 @@ public class ServerGame implements Game {
   @Override
   public CollisionManager getCollisionManager() {
     return collisionManager;
+  }
+
+  public Terrain getTerrain() {
+    return terrain;
   }
 }

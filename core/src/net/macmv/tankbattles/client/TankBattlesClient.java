@@ -102,6 +102,8 @@ public class TankBattlesClient {
         hash.put(p.getId(), Player.fromProto(game.getCollisionManager(), p));
       }
     });
+    System.out.println("Recieved map: " + res.getMap());
+    game.loadMap(res.getMap());
     timeTicksStart = System.currentTimeMillis() - res.getTick() * 50;
     System.out.println("Server start time: " + new Date(timeTicksStart));
     return hash;

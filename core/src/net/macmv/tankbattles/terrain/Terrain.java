@@ -42,10 +42,6 @@ public class Terrain {
     length = (int) dimensions.z;
   }
 
-  public Terrain(Game game, String filename) {
-    this(game, filename, true);
-  }
-
   public Terrain(Game game, TerrainMap proto) {
     this(game, proto, true);
   }
@@ -84,7 +80,11 @@ public class Terrain {
         TerrainMap.Plane.Row.Builder newRow = TerrainMap.Plane.Row.newBuilder();
         for (int z = 0; z < length; z++) {
           TerrainMap.Tile.Builder newTile = TerrainMap.Tile.newBuilder();
-          Tile tile = tiles.get(new Vector3(x, y, z));
+          Vector3 pos = new Vector3(x, y, z);
+          Tile tile = tiles.get(pos);
+          if (tile == null) {
+            throw new RuntimeException("Tile at: " + pos + " is null!");
+          }
           newTile.setType(tile.getType());
           newTile.setPos(Point3.newBuilder().setX(x).setY(y).setZ(z).build());
           newRow.putTiles(z, newTile.build());
@@ -99,7 +99,7 @@ public class Terrain {
   // only server should run this, server sends client serialized map
   // returns width, height, length of map
   private Vector3 loadMap(String filename) {
-    File file = Gdx.files.internal("test").file();
+    File file = Gdx.files.internal(filename).file();
     if (!file.exists()) {
       throw new RuntimeException("File '" + file.getAbsolutePath() + "' does not exist");
     }
@@ -119,7 +119,7 @@ public class Terrain {
     Matrix4 trans = new Matrix4();
     trans.setTranslation(pos);
     game.getCollisionManager().addObject(trans, 0, new btBoxShape(new Vector3(0.5f, 0.5f, 0.5f)));
-    tiles.put(pos.cpy(), new Tile(pos.cpy(), TerrainMap.Tile.Type.GRASS));
+    tiles.put(pos.cpy(), new Tile(pos.cpy(), type));
   }
 
   public void save(String filename, boolean overwrite) {
