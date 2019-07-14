@@ -175,7 +175,7 @@ public class Player {
   public void moveTo(Vector3 newPos, int direction) {
     Matrix4 trans = new Matrix4();
     body.getMotionState().getWorldTransform(trans);
-    Vector3 bodyPos = trans.getTranslation(Vector3.Zero);
+    Vector3 bodyPos = trans.getTranslation(Vector3.Zero.cpy());
     Vector3 impulse = newPos.cpy().sub(bodyPos).scl(20f);
     impulse.y = 0;
     body.activate();
@@ -184,7 +184,7 @@ public class Player {
     this.direction = direction;
     trans = new Matrix4();
     body.getMotionState().getWorldTransform(trans);
-    bodyPos = trans.getTranslation(Vector3.Zero);
+    bodyPos = trans.getTranslation(Vector3.Zero.cpy());
     this.pos.set(bodyPos);
   }
 }

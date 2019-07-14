@@ -14,7 +14,7 @@ public class TankBattlesMapEditor extends ApplicationAdapter implements InputPro
   @Override
   public void create() {
     game = new MapEditorGame();
-    render = new Render(game);
+    render = new Render(game, Render.Mode.SPECTATOR);
     Gdx.input.setInputProcessor(this);
   }
 

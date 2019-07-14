@@ -13,7 +13,7 @@ public class TankBattlesApp extends ApplicationAdapter implements InputProcessor
   @Override
   public void create() {
     game = new ClientGame();
-    render = new Render(game);
+    render = new Render(game, Render.Mode.PLAYER);
     Gdx.input.setInputProcessor(this);
   }
 

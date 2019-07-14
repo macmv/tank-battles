@@ -4,10 +4,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
-import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
-import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
@@ -67,6 +64,10 @@ public class CollisionManager {
       throw new RuntimeException("Cannot draw debug world without loadTextures set!");
     }
     world.debugDrawWorld();
+  }
+
+  public void rayTest(Vector3 rayFrom, Vector3 rayTo, ClosestRayResultCallback callback) {
+    world.rayTest(rayFrom, rayTo, callback);
   }
 
   static public class MotionState extends btMotionState {
