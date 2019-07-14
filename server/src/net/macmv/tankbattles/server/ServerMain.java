@@ -63,9 +63,9 @@ public class ServerMain {
     public void playerJoin(PlayerJoinReq req, StreamObserver<PlayerJoinRes> responseObserver) {
       logger.info("Player joining, req: " + req);
       game.addPlayer(req.getId(), req.getTank());
-      logger.info("Current Players: " + game.getPlayers());
+      logger.info("Current Players: " + game.getProtoPlayers());
       PlayerJoinRes.Builder reply = PlayerJoinRes.newBuilder();
-      reply.addAllPlayer(game.getPlayers().values());
+      reply.addAllPlayer(game.getProtoPlayers().values());
       reply.setTick(game.getTick());
       reply.setMap(game.getTerrain().toProto());
       responseObserver.onNext(reply.build());

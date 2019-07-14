@@ -1,5 +1,6 @@
 package net.macmv.tankbattles.server;
 
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.Game;
@@ -8,6 +9,7 @@ import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ServerGame implements Game {
@@ -34,12 +36,17 @@ public class ServerGame implements Game {
     players.put(id, player);
   }
 
-  public HashMap<Integer, net.macmv.tankbattles.lib.proto.Player> getPlayers() {
+  public HashMap<Integer, net.macmv.tankbattles.lib.proto.Player> getProtoPlayers() {
     HashMap<Integer, net.macmv.tankbattles.lib.proto.Player> hash = new HashMap<>();
     players.forEach((id, p) -> {
       hash.put(id, p.toProto());
     });
     return hash;
+  }
+
+  @Override
+  public ArrayList<Projectile> getProjectiles() {
+    return null;
   }
 
   public long getTick() {
@@ -113,7 +120,44 @@ public class ServerGame implements Game {
     return collisionManager;
   }
 
+  @Override
+  public void update(float deltaTime, AssetManager assetManager) {
+    // client only, could change to use this later for physics updates
+  }
+
+  @Override
+  public void shutdown() throws InterruptedException {
+    // client only
+  }
+
+  @Override
+  public Player getPlayer() {
+    // client only
+    return null;
+  }
+
+  @Override
+  public void requireAssets(AssetManager assetManager) {
+    // client only
+  }
+
+  @Override
+  public void loadAssets(AssetManager assetManager) {
+    // client only
+  }
+
+  @Override
+  public void sendProjectile(Vector3 pos, Vector3 direction) {
+    // client only
+  }
+
   public Terrain getTerrain() {
     return terrain;
+  }
+
+  @Override
+  public HashMap<Integer, Player> getPlayers() {
+    // client only, use getProtoPlayers() for server, as they return different objects
+    return null;
   }
 }

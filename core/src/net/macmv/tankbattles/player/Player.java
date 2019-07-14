@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import net.macmv.tankbattles.ClientGame;
 import net.macmv.tankbattles.collision.CollisionManager;
+import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.lib.proto.Point2;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.render.Skin;
@@ -115,7 +115,7 @@ public class Player {
     return newProto.build();
   }
 
-  public void fire(ClientGame game) {
+  public void fire(Game game) {
     Vector2 vel = new Vector2(10, 0).setAngle(turretDirection.x - 90);
     game.sendProjectile(new Vector3(pos.x, pos.y + 1.5f, pos.z), new Vector3(vel.x, turretTarget.y * 10 + 2, vel.y));
   }

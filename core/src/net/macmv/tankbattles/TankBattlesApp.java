@@ -6,7 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import net.macmv.tankbattles.render.Render;
 
-public class TankBattles extends ApplicationAdapter implements InputProcessor {
+public class TankBattlesApp extends ApplicationAdapter implements InputProcessor {
   private ClientGame game;
   private Render render;
 

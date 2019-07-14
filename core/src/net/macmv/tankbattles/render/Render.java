@@ -8,18 +8,18 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import net.macmv.tankbattles.ClientGame;
+import net.macmv.tankbattles.lib.Game;
 
 public class Render {
   private final PerspectiveCamera cam;
   private final ModelBatch batch;
   private final AssetManager assetManager;
-  private final ClientGame game;
+  private final Game game;
   private boolean loading;
   private float prevDirection;
   private boolean debug = false;
 
-  public Render(ClientGame game) {
+  public Render(Game game) {
     this.game = game;
     cam = new PerspectiveCamera(60, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     cam.near = 0.1f;

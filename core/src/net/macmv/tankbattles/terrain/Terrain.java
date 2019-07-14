@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import net.macmv.tankbattles.MapEditorGame;
 import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.lib.proto.TerrainMap;
@@ -57,6 +58,10 @@ public class Terrain {
     height = proto.getHeight();
     length = proto.getLength();
     loadTiles(proto);
+  }
+
+  public Terrain(MapEditorGame game, String filename) {
+    this(game, filename, true);
   }
 
   private void loadTiles(TerrainMap proto) {
@@ -125,10 +130,10 @@ public class Terrain {
   public void save(String filename, boolean overwrite) {
     File file = Gdx.files.internal(filename).file();
     if (!file.isFile()) {
-      throw new RuntimeException("Location '" + filename + "' is not a file");
+      throw new RuntimeException("Location '" + file.getAbsolutePath() + "' is not a file");
     }
     if (file.exists() && !overwrite) {
-      throw new RuntimeException("File '" + filename + "' already exists, and overwrite was false");
+      throw new RuntimeException("'" + file.getAbsolutePath() + "' already exists, and overwrite is false");
     }
     TerrainMap map = toProto();
     try {
