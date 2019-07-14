@@ -8,6 +8,7 @@ import net.macmv.tankbattles.client.ClientThread;
 import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.lib.proto.Point3;
+import net.macmv.tankbattles.lib.proto.TerrainMap;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
@@ -19,7 +20,7 @@ public class ClientGame implements Game {
   private final ClientThread client;
   private final HashMap<Integer, Player> players;
   private final Player player;
-  private final Terrain terrain;
+  private Terrain terrain;
   private final CollisionManager collisionManager;
   private ArrayList<Projectile> projectiles = new ArrayList<>();
   private Projectile newProjectile;
@@ -29,7 +30,10 @@ public class ClientGame implements Game {
     collisionManager = new CollisionManager();
     player = new Player(collisionManager);
     players = client.newPlayer();
-    terrain = new Terrain(this, "");
+  }
+
+  public void loadMap(TerrainMap map) {
+    terrain = new Terrain(this, map);
   }
 
   public void update(float delta, AssetManager assetManager) {

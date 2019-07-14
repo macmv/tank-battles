@@ -29,4 +29,16 @@ public class Tile {
     inst = new ModelInstance(model);
     inst.transform.setTranslation(pos);
   }
+
+  public TerrainMap.Tile.Type getType() {
+    return type;
+  }
+
+  @Override
+  public String toString() {
+    return "Tile{" +
+            "pos=" + pos +
+            ", type=" + type +
+            '}';
+  }
 }

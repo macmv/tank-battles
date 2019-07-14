@@ -1,3 +1,5 @@
 
 ./gradlew installDist
-./server/build/install/server/bin/server
+cd ./core/assets
+../../server/build/install/server/bin/server
+cd ../../

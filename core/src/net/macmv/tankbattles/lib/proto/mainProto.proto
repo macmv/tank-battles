@@ -114,11 +114,13 @@ message TerrainMap {
 
   message Tile {
     Type type = 1;
+    Point3 pos = 2;
 
     enum Type {
-      GRASS = 0;
-      SAND = 1;
-      ROCK = 2;
+      AIR = 0;
+      GRASS = 1;
+      SAND = 2;
+      ROCK = 3;
     }
   }
 }

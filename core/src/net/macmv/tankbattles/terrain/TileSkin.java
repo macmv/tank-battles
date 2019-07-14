@@ -2,7 +2,6 @@ package net.macmv.tankbattles.terrain;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.lib.proto.TerrainMap;
 
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class TileSkin {
       if (m.id.equals(type.toString().toLowerCase())) { // will only populate array w/ models it needs
         Model tmpModel = new Model();
         tmpModel.nodes.add(m);
-        m.translation.set(Vector3.Zero);
+        m.translation.set(0, 0, 0); // cannot use Vector3.Zero for some reason, it messes things up
         models.put(type, tmpModel);
       }
     });

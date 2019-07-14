@@ -1,5 +1,8 @@
 package net.macmv.tankbattles.server;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
+import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -16,6 +19,8 @@ public class ServerMain {
   private Server server;
 
   public static void main(String[] args) throws IOException, InterruptedException {
+    LwjglNativesLoader.load();
+    Gdx.files = new LwjglFiles();
     game = new ServerGame();
     final ServerMain server = new ServerMain();
     server.start();
