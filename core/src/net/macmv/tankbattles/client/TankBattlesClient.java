@@ -53,8 +53,13 @@ public class TankBattlesClient {
         game.getPlayer().moveTo(serverPlayer.getPos(), serverPlayer.getDirection()); // moveTo just applies a bit of vel to stay the same as server
       } else { // serverPlayer is not me
         if (localPlayers.containsKey(serverPlayer.getId())) { // stored this player
+          Vector3 serverPlayerPos = new Vector3(serverPlayer.getPos().getX(), serverPlayer.getPos().getY(), serverPlayer.getPos().getZ());
           localPlayers.get(serverPlayer.getId()).setTurretDirection(serverPlayer.getTurretDirection());
-          localPlayers.get(serverPlayer.getId()).moveTo(serverPlayer.getPos(), serverPlayer.getDirection());
+          if (localPlayers.get(serverPlayer.getId()).getPos().dst(serverPlayerPos) > 0.5) { // if too far, the moveTo will make player spaz out
+            localPlayers.get(serverPlayer.getId()).setPos(serverPlayer.getPos(), serverPlayer.getDirection());
+          } else {
+            localPlayers.get(serverPlayer.getId()).moveTo(serverPlayer.getPos(), serverPlayer.getDirection());
+          }
           localPlayers.get(serverPlayer.getId()).updateAnimations(); // update local player to server
         } else { // new player
           Player newPlayer = Player.fromProto(game.getCollisionManager(), serverPlayer);
@@ -102,7 +107,7 @@ public class TankBattlesClient {
         hash.put(p.getId(), Player.fromProto(game.getCollisionManager(), p));
       }
     });
-    System.out.println("Recieved map: " + res.getMap());
+    System.out.println("Received map: " + res.getMap());
     game.loadMap(res.getMap());
     timeTicksStart = System.currentTimeMillis() - res.getTick() * 50;
     System.out.println("Server start time: " + new Date(timeTicksStart));
