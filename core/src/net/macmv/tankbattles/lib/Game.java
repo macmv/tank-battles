@@ -7,7 +7,6 @@ import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public interface Game {
@@ -29,5 +28,9 @@ public interface Game {
 
   HashMap<Integer, Player> getPlayers();
 
-  ArrayList<Projectile> getProjectiles();
+  HashMap<Integer, Projectile> getProjectiles();
+
+  void destroyProjectile(Projectile projectile);
+
+  void fire();
 }

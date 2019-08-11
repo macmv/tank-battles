@@ -67,7 +67,7 @@ public class TankBattlesApp extends ApplicationAdapter implements InputProcessor
       return false;
     }
     synchronized (game.getPlayer()) {
-      game.getPlayer().fire(game);
+      game.fire();
     }
     return true;
   }

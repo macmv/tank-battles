@@ -11,6 +11,7 @@ import net.macmv.tankbattles.player.Player;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -40,12 +41,20 @@ public class TankBattlesClient {
     PlayerMoveReq.Builder req = PlayerMoveReq.newBuilder();
     req.setPlayer(player.toProto());
     PlayerEventRes res = sendEvent(req.build());
+    HashSet<Integer> ids = new HashSet<>();
     res.getFireRes().getProjectileList().forEach(serverProj -> {
+      ids.add(serverProj.getId());
       if (game.getProjectile(serverProj.getId()) != null) {
-        game.getProjectile(serverProj.getId()).updatePos(serverProj.getPos(), serverProj.getVel());
+//        game.getProjectile(serverProj.getId()).updatePos(serverProj.getPos(), serverProj.getVel());
       } else {
         game.addProjectile(serverProj.getPos(), serverProj.getVel(), serverProj.getId());
       }
+    });
+    game.getProjectiles().keySet().removeIf(id -> {
+      if (!ids.contains(id)) {
+        game.getProjectile(id).destroy();
+      }
+      return !ids.contains(id);
     });
     HashMap<Integer, Player> localPlayers = game.getPlayers();
     res.getMoveRes().getPlayerList().forEach(serverPlayer -> {
@@ -66,21 +75,6 @@ public class TankBattlesClient {
           newPlayer.loadAssets(assetManager);
           localPlayers.put(serverPlayer.getId(), newPlayer);
         }
-      }
-    });
-  }
-
-  public void fire(ClientGame game, Vector3 projPos, Vector3 projVel) {
-    PlayerFireReq.Builder req = PlayerFireReq.newBuilder();
-    req.setProjectilePos(Point3.newBuilder().setX(projPos.x).setY(projPos.y).setZ(projPos.z));
-    req.setProjectileVel(Point3.newBuilder().setX(projVel.x).setY(projVel.y).setZ(projVel.z));
-    req.setPlayerId(game.getPlayer().getId());
-    PlayerFireRes res = sendEvent(req.build());
-    res.getProjectileList().forEach(serverProj -> {
-      if (game.getProjectile(serverProj.getId()) != null) {
-        game.getProjectile(serverProj.getId()).updatePos(serverProj.getPos(), serverProj.getVel());
-      } else {
-        game.addProjectile(serverProj.getPos(), serverProj.getVel(), serverProj.getId());
       }
     });
   }

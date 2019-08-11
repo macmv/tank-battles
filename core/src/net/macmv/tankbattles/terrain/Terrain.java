@@ -173,4 +173,8 @@ public class Terrain {
   public TileSkin getTileSkin() {
     return tileSkin;
   }
+
+  public HashMap<Vector3, Tile> getTiles() {
+    return tiles;
+  }
 }

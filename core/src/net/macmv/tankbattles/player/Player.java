@@ -84,7 +84,7 @@ public class Player {
           turretDirection.x += 1;
         }
       }
-      turretDirection.x = (turretDirection.x + 360) % 360;
+      turretDirection.x = (turretDirection.x + 360) % 360; // fix to 0 - 360
     }
     tank.setTurretRotation(((getBodyRot() + turretDirection.x + 180) * -1 + 360) % 360);
   }
@@ -130,6 +130,7 @@ public class Player {
 
   public void fire(Game game) {
     Vector2 vel = new Vector2(10, 0).setAngle(turretDirection.x - 90);
+    System.out.println("Player firing with turretDirection: " + turretDirection + ", turretTarget: " + turretTarget);
     game.sendProjectile(new Vector3(pos.x, pos.y + 1.5f, pos.z), new Vector3(vel.x, turretTarget.y * 10 + 2, vel.y));
   }
 
@@ -190,15 +191,10 @@ public class Player {
     body.activate();
     body.clearForces();
     body.applyCentralImpulse(impulse);
-    rotateTo(direction);
     trans = new Matrix4();
     body.getMotionState().getWorldTransform(trans);
     bodyPos = trans.getTranslation(Vector3.Zero.cpy());
     this.pos.set(bodyPos);
-  }
-
-  private void rotateTo(float direction) {
-
   }
 
   private void setPos(Point3 pos) {

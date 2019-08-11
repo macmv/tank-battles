@@ -11,6 +11,8 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
+import net.macmv.tankbattles.player.Player;
+import net.macmv.tankbattles.projectile.Projectile;
 
 public class CollisionManager {
   private final btDynamicsWorld world;
@@ -44,9 +46,11 @@ public class CollisionManager {
 
   public void update(float deltaTime) {
     world.stepSimulation(deltaTime);
+//    System.out.println("Number of objects: " + world.getCollisionObjectArray().size());
   }
 
   public btRigidBody addObject(Matrix4 transform, float mass, btCollisionShape shape) {
+    System.out.println("ADDING OBJECT");
     Vector3 intertia = new Vector3();
     shape.calculateLocalInertia(mass, intertia);
     btRigidBody.btRigidBodyConstructionInfo constructionInfo = new btRigidBody.btRigidBodyConstructionInfo(mass, null, shape, intertia);
@@ -72,17 +76,42 @@ public class CollisionManager {
 
   static public class MotionState extends btMotionState {
     public Matrix4 transform;
+
     @Override
-    public void getWorldTransform (Matrix4 worldTrans) {
+    public void getWorldTransform(Matrix4 worldTrans) {
       worldTrans.set(transform);
     }
+
     @Override
-    public void setWorldTransform (Matrix4 worldTrans) {
+    public void setWorldTransform(Matrix4 worldTrans) {
       transform.set(worldTrans);
     }
   }
 
   public DebugDrawer getDebugDrawer() {
     return debugDrawer;
+  }
+
+  public static class OnContact extends ContactListener {
+    @Override
+    public void onContactStarted(btCollisionObject a, btCollisionObject b) {
+      if (a != null && b != null) {
+        System.out.println("COLLISION! a: " + a.userData + ", b: " + b.userData);
+        Projectile proj;
+        if (a.userData instanceof Projectile) {
+          proj = (Projectile) a.userData;
+        } else if (b.userData instanceof Projectile) {
+          proj = (Projectile) b.userData;
+        } else {
+          return;
+        }
+        if (a.userData instanceof Player) {
+          proj.doDamage((Player) a.userData);
+        } else if (b.userData instanceof Player) {
+          proj.doDamage((Player) b.userData);
+        }
+        proj.getGame().destroyProjectile(proj);
+      }
+    }
   }
 }

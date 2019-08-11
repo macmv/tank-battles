@@ -7,13 +7,13 @@ import com.badlogic.gdx.math.Vector3;
 import net.macmv.tankbattles.client.ClientThread;
 import net.macmv.tankbattles.collision.CollisionManager;
 import net.macmv.tankbattles.lib.Game;
+import net.macmv.tankbattles.lib.proto.PlayerFireReq;
 import net.macmv.tankbattles.lib.proto.Point3;
 import net.macmv.tankbattles.lib.proto.TerrainMap;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ClientGame implements Game {
@@ -22,8 +22,7 @@ public class ClientGame implements Game {
   private final Player player;
   private Terrain terrain;
   private final CollisionManager collisionManager;
-  private ArrayList<Projectile> projectiles = new ArrayList<>();
-  private Projectile newProjectile;
+  private HashMap<Integer, Projectile> projectiles = new HashMap<>();
 
   public ClientGame() {
     this.client = new ClientThread(this);
@@ -55,8 +54,8 @@ public class ClientGame implements Game {
     synchronized (player) {
       player.move(right, left, delta); // check move def to see why we don't call d.nor()
     }
-    projectiles.forEach(p -> {
-      p.update(delta);
+    projectiles.forEach((id, p) -> {
+      p.update();
     });
   }
 
@@ -90,34 +89,38 @@ public class ClientGame implements Game {
   }
 
   public void addProjectile(Point3 pos, Point3 vel, int id) {
-    projectiles.add(new Projectile(
+    Projectile projectile = new Projectile(
             new Vector3(pos.getX(), pos.getY(), pos.getZ()),
-            new Vector3(vel.getX(), vel.getY(), vel.getZ()), id));
+            new Vector3(vel.getX(), vel.getY(), vel.getZ()),
+            id,
+            this);
+    projectiles.put(id, projectile);
   }
 
   public void sendProjectile(Vector3 pos, Vector3 vel) {
-    newProjectile = new Projectile(pos, vel, 0);
+    PlayerFireReq.Builder fireReq = PlayerFireReq.newBuilder();
+    fireReq.setPlayerId(player.getId());
+    fireReq.setProjectilePos(Point3.newBuilder().setX(pos.x).setY(pos.y).setZ(pos.z).build());
+    fireReq.setProjectileVel(Point3.newBuilder().setX(vel.x).setY(vel.y).setZ(vel.z).build());
+    client.addFire(fireReq.build());
   }
 
-  public ArrayList<Projectile> getProjectiles() {
+  public HashMap<Integer, Projectile> getProjectiles() {
     return projectiles;
   }
 
+  @Override
+  public void destroyProjectile(Projectile projectile) {
+    projectiles.remove(projectile.id);
+  }
+
+  @Override
+  public void fire() {
+    player.fire(this);
+  }
+
   public Projectile getProjectile(int id) {
-    for (Projectile p : projectiles) {
-      if (p.id == id) {
-        return p;
-      }
-    }
-    return null;
-  }
-
-  public Projectile getNewProjectile() {
-    return newProjectile;
-  }
-
-  public void clearNewProjectile() {
-    newProjectile = null;
+    return projectiles.get(id);
   }
 
   public CollisionManager getCollisionManager() {

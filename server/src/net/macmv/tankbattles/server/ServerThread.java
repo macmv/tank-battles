@@ -1,36 +1,28 @@
 package net.macmv.tankbattles.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 
-public class ServerThread {
-  private ServerSocket serverSocket;
-  private Socket clientSocket;
-  private PrintWriter out;
-  private BufferedReader in;
+public class ServerThread extends Thread {
 
-  public ServerThread(int port) throws IOException {
-    serverSocket = new ServerSocket(port);
-    clientSocket = serverSocket.accept();
-    out = new PrintWriter(clientSocket.getOutputStream(), true);
-    in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    String greeting = in.readLine();
-    System.out.println(greeting);
-    if ("hello server".equals(greeting)) {
-      out.println("hello client");
-    } else {
-      out.println("unrecognised greeting");
+  private final ServerMain serverMain;
+
+  public ServerThread(ServerMain server) throws IOException {
+    this.serverMain = server;
+  }
+
+  public void run() {
+    long lastTick = System.currentTimeMillis();
+    while (true) {
+      float deltaTime = System.currentTimeMillis() - lastTick;
+      if (deltaTime >= 50) {
+        update(deltaTime);
+        lastTick = System.currentTimeMillis();
+      }
     }
   }
 
-  public void stop() throws IOException {
-    in.close();
-    out.close();
-    clientSocket.close();
-    serverSocket.close();
+  private void update(float deltaTime) {
+    System.out.println("Updating");
+    serverMain.update(deltaTime);
   }
 }

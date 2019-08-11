@@ -10,14 +10,13 @@ import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapEditorGame implements Game {
   private final Player player;
   private Terrain terrain;
   private final CollisionManager collisionManager;
-  private ArrayList<Projectile> projectiles = new ArrayList<>();
+  private HashMap<Integer, Projectile> projectiles = new HashMap<>();
 
   public MapEditorGame() {
     collisionManager = new CollisionManager();
@@ -50,8 +49,8 @@ public class MapEditorGame implements Game {
     synchronized (player) {
       player.move(right, left, delta); // check move def to see why we don't call d.nor()
     }
-    projectiles.forEach(p -> {
-      p.update(delta);
+    projectiles.forEach((id, p) -> {
+      p.update();
     });
   }
 
@@ -79,7 +78,9 @@ public class MapEditorGame implements Game {
 
   @Override
   public void sendProjectile(Vector3 pos, Vector3 vel) {
-    projectiles.add(new Projectile(pos, vel, 0));
+    int id = (int) (Math.random() * Integer.MAX_VALUE);
+    System.out.println("Firing at pos: " + pos + ", vel: " + vel);
+    projectiles.put(id, new Projectile(pos, vel, id, this));
   }
 
   @Override
@@ -93,7 +94,17 @@ public class MapEditorGame implements Game {
   }
 
   @Override
-  public ArrayList<Projectile> getProjectiles() {
+  public HashMap<Integer, Projectile> getProjectiles() {
     return projectiles;
+  }
+
+  @Override
+  public void destroyProjectile(Projectile projectile) {
+    // TODO: set this up for map editor
+  }
+
+  @Override
+  public void fire() {
+    player.fire(this);
   }
 }

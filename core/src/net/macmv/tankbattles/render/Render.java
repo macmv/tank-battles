@@ -78,6 +78,7 @@ public class Render {
     updateCamera();
 
     if (viewMode == Mode.PLAYER) {
+      System.out.println("Setting turret target to: " + cam.direction.y);
       game.getPlayer().setTurretTarget(tmp2.set(cam.direction.x, cam.direction.z).angle() + 90, cam.direction.y);
     }
 
@@ -91,7 +92,7 @@ public class Render {
     game.getPlayers().forEach((id, p) -> {
       p.getTank().render(batch, env, delta);
     });
-    game.getProjectiles().forEach((p) -> {
+    game.getProjectiles().forEach((id, p) -> {
       p.render(batch, env);
     });
 
@@ -124,7 +125,6 @@ public class Render {
       float x = (float) Math.sin((-playerRot - 180) / 180.0 * Math.PI);
       float z = (float) Math.cos((-playerRot - 180) / 180.0 * Math.PI);
       cam.position.set(pos.x + x, 3, pos.z + z);
-      cam.update();
     } else if (viewMode == Mode.SPECTATOR) {
       Gdx.input.setCursorCatched(false);
 
@@ -146,10 +146,10 @@ public class Render {
       cam.direction.rotate(tmp3.set(cam.direction).crs(cam.up).nor(), camAngle.y); // little more magic
 
       cam.position.set(spectatorPos.x, spectatorPos.y, spectatorPos.z);
-      cam.update();
 
       mapEditor.updateTarget(game.getCollisionManager());
     }
+    cam.update();
   }
 
   public void scroll(int amount) {

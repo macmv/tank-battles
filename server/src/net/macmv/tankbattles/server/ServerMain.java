@@ -14,17 +14,23 @@ import java.util.logging.Logger;
 public class ServerMain {
 
   private static final Logger logger = Logger.getLogger(ServerMain.class.getName());
-  private static ServerGame game;
+  private static ServerGame serverGame;
 
   private Server server;
 
   public static void main(String[] args) throws IOException, InterruptedException {
     LwjglNativesLoader.load();
     Gdx.files = new LwjglFiles();
-    game = new ServerGame();
+    serverGame = new ServerGame();
     final ServerMain server = new ServerMain();
+    ServerThread updateThread = new ServerThread(server);
+    updateThread.start();
     server.start();
     server.blockUntilShutdown();
+  }
+
+  public void update(float deltaTime) {
+    serverGame.update(deltaTime, null);
   }
 
   private void start() throws IOException {
@@ -62,12 +68,12 @@ public class ServerMain {
     @Override
     public void playerJoin(PlayerJoinReq req, StreamObserver<PlayerJoinRes> responseObserver) {
       logger.info("Player joining, req: " + req);
-      game.addPlayer(req.getId(), req.getTank());
-      logger.info("Current Players: " + game.getProtoPlayers());
+      serverGame.addPlayer(req.getId(), req.getTank());
+      logger.info("Current Players: " + serverGame.getProtoPlayers());
       PlayerJoinRes.Builder reply = PlayerJoinRes.newBuilder();
-      reply.addAllPlayer(game.getProtoPlayers().values());
-      reply.setTick(game.getTick());
-      reply.setMap(game.getTerrain().toProto());
+      reply.addAllPlayer(serverGame.getProtoPlayers().values());
+      reply.setTick(serverGame.getTick());
+      reply.setMap(serverGame.getTerrain().toProto());
       responseObserver.onNext(reply.build());
       responseObserver.onCompleted();
       logger.info("Player joined, res: " + reply);
@@ -77,16 +83,16 @@ public class ServerMain {
     public void playerEvent(PlayerEventReq req, StreamObserver<PlayerEventRes> responseObserver) {
       PlayerMoveRes moveRes = null;
       if (req.getMoveReqBool()) {
-        moveRes = game.checkAndMove(req.getMoveReq(), req.getTick());
+        moveRes = serverGame.checkAndMove(req.getMoveReq(), req.getTick());
       }
       if (req.getFireReqBool()) {
-        game.checkFire(req.getFireReq(), req.getTick());
+        serverGame.checkFire(req.getFireReq(), req.getTick());
       }
       PlayerEventRes.Builder res = PlayerEventRes.newBuilder();
       if (moveRes != null) {
         res.setMoveRes(moveRes);
       }
-      res.setFireRes(game.generateFireRes());
+      res.setFireRes(serverGame.generateFireRes());
       responseObserver.onNext(res.build());
       responseObserver.onCompleted();
     }

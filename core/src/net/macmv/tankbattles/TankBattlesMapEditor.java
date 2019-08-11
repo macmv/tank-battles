@@ -4,11 +4,10 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import net.macmv.tankbattles.lib.Game;
 import net.macmv.tankbattles.render.Render;
 
 public class TankBattlesMapEditor extends ApplicationAdapter implements InputProcessor {
-  private Game game;
+  private MapEditorGame game;
   private Render render;
 
   @Override
@@ -68,6 +67,7 @@ public class TankBattlesMapEditor extends ApplicationAdapter implements InputPro
   public boolean touchDown(int screenX, int screenY, int pointer, int button) {
     if (button == Input.Buttons.LEFT) {
       render.leftClick();
+      game.fire();
       return true;
     }
     return false;

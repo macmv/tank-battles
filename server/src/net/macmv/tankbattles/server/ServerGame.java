@@ -8,6 +8,7 @@ import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
+import net.macmv.tankbattles.terrain.Tile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,8 +46,20 @@ public class ServerGame implements Game {
   }
 
   @Override
-  public ArrayList<Projectile> getProjectiles() {
+  public HashMap<Integer, Projectile> getProjectiles() {
     return null;
+  }
+
+  @Override
+  public void destroyProjectile(Projectile projectile) {
+    System.out.println("DELETING PROJECTILE: " + projectile);
+    projectile.destroy();
+    projectiles.remove(projectile.id);
+  }
+
+  @Override
+  public void fire() {
+    // client only
   }
 
   public long getTick() {
@@ -72,15 +85,14 @@ public class ServerGame implements Game {
     // TODO: implement getBaseStats(p.getTank().getBase().getId()).getSpeed()
     players.get(p.getId()).setTurretDirection(p.getTurretDirection());
     float allowedSpeed = 1f; // 0.1 tiles / tick allowed, aka 2 tiles / second
-    collisionManager.update((System.currentTimeMillis() - lastCollisionUpdate) / 1000f);
     lastCollisionUpdate = System.currentTimeMillis();
-    System.out.println("Speed: " + speed);
+//    System.out.println("Speed: " + speed);
     if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we need to worry about slow connections more
       players.get(p.getId()).moveTo(newPos, p.getDirection());
-      System.out.println("Sending player move res at newPos: " + newPos);
+//      System.out.println("Sending player move res at newPos: " + newPos);
     } else {
       players.get(p.getId()).moveTo(oldPos, p.getDirection());
-      System.out.println("Sending player move res at oldPos: " + oldPos);
+//      System.out.println("Sending player move res at oldPos: " + oldPos);
     }
     PlayerMoveRes.Builder res = PlayerMoveRes.newBuilder();
     players.values().forEach(player -> {
@@ -95,10 +107,17 @@ public class ServerGame implements Game {
     Vector3 vel = new Vector3(req.getProjectileVel().getX(), req.getProjectileVel().getY(), req.getProjectileVel().getZ());
     if (pos.dst(player.getPos()) < 5) { // close enough
       int id = (int) (Math.random() * Integer.MAX_VALUE);
-      projectiles.put(id, new Projectile(pos, vel, id, false));
+      System.out.println("Adding projectile, vel: " + vel);
+      addProjectile(id, new Projectile(pos, vel, id, this, false));
     } else {
       System.out.println("Player sent invalid projectile");
     }
+  }
+
+  private void addProjectile(int id, Projectile projectile) {
+    projectiles.put(id, projectile);
+    projectile.cl = new CollisionManager.OnContact();
+    projectile.cl.onContactStarted(projectile.getBody(), null);
   }
 
   public PlayerFireRes generateFireRes() {
@@ -106,9 +125,7 @@ public class ServerGame implements Game {
     if (lastProjectileUpdate == 0) {
       lastProjectileUpdate = System.currentTimeMillis();
     }
-    float projectileUpdateDelta = (System.currentTimeMillis() - lastProjectileUpdate) / 1000f;
     projectiles.values().forEach(projectile -> {
-      projectile.update(projectileUpdateDelta);
       res.addProjectile(projectile.toProto());
     });
     lastProjectileUpdate = System.currentTimeMillis();
@@ -122,7 +139,37 @@ public class ServerGame implements Game {
 
   @Override
   public void update(float deltaTime, AssetManager assetManager) {
-    // client only, could change to use this later for physics updates
+    collisionManager.update(deltaTime / 1000);
+//    printDebugWorld();
+  }
+
+  private void printDebugWorld() {
+    ArrayList<ArrayList<Character>> outputString = new ArrayList<>();
+    for(int y = 0; y < 20; y++) {
+      ArrayList<Character> line = new ArrayList<>();
+      for(int x = 0; x < 20; x++) {
+        line.add('_');
+      }
+      outputString.add(line);
+    }
+    HashMap<Vector3, Tile> tiles = terrain.getTiles();
+    tiles.forEach((pos, tile) -> {
+      outputString.get((int) pos.y).set((int) pos.z, 'T');
+    });
+    players.forEach((id, p) -> {
+      outputString.get((int) p.getPos().y).set((int) p.getPos().z, 'P');
+    });
+    projectiles.forEach((id, p) -> {
+      outputString.get((int) p.getPos().y).set((int) p.getPos().z, 'S');
+    });
+    System.out.println("World from YZ plane:");
+    for (int y = outputString.size() - 1; y >= 0; y--) {
+      for (char character : outputString.get(y)) {
+        System.out.print(character);
+        System.out.print(character);
+      }
+      System.out.println();
+    }
   }
 
   @Override
