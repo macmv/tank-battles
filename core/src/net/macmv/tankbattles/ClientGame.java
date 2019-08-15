@@ -26,7 +26,7 @@ public class ClientGame implements Game {
 
   public ClientGame() {
     this.client = new ClientThread(this);
-    collisionManager = new CollisionManager();
+    collisionManager = new CollisionManager(this);
     player = new Player(collisionManager);
     players = client.newPlayer();
   }

@@ -1,4 +1,4 @@
-package net.macmv.tankbattles;
+package net.macmv.tankbattles.mapeditor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -19,7 +19,7 @@ public class MapEditorGame implements Game {
   private HashMap<Integer, Projectile> projectiles = new HashMap<>();
 
   public MapEditorGame() {
-    collisionManager = new CollisionManager();
+    collisionManager = new CollisionManager(this);
     player = new Player(collisionManager);
     terrain = new Terrain(this, "maps/tmp.map");
   }

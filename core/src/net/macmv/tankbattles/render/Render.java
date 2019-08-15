@@ -66,7 +66,7 @@ public class Render {
         System.out.println("DONE");
         game.loadAssets(assetManager);
         if (viewMode == Mode.SPECTATOR) {
-          mapEditor.loadAssets(assetManager, game.getTerrain().getTileSkin());
+          mapEditor.loadAssets(assetManager, game.getTerrain().getTerrainSkin());
         }
         loading = false;
       } else { // TODO: progress bar here for loading
@@ -103,9 +103,7 @@ public class Render {
     batch.end();
 
     if (debug) {
-      game.getCollisionManager().getDebugDrawer().begin(cam);
-      game.getCollisionManager().debugDrawWorld();
-      game.getCollisionManager().getDebugDrawer().end();
+//      game.getCollisionManager().drawDebugWorld();
     }
   }
 
@@ -114,7 +112,7 @@ public class Render {
     if (viewMode == Mode.PLAYER) {
       Gdx.input.setCursorCatched(true);
       Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-      float playerRot = (game.getPlayer().getBodyRot() * -1 + 360) % 360;
+      float playerRot = (game.getPlayer().getRot() * -1 + 360) % 360;
 
       Vector3 pos = game.getPlayer().getPos();
       float deltaX = -Gdx.input.getDeltaX() * 0.5f + prevDirection - playerRot;
@@ -188,7 +186,7 @@ public class Render {
 
   public void leftClick() {
     if (viewMode == Mode.SPECTATOR) {
-      mapEditor.placeTile();
+      mapEditor.setHeight();
     } else {
       synchronized (game.getPlayer()) {
         game.getPlayer().fire(game);

@@ -8,7 +8,6 @@ import net.macmv.tankbattles.lib.proto.*;
 import net.macmv.tankbattles.player.Player;
 import net.macmv.tankbattles.projectile.Projectile;
 import net.macmv.tankbattles.terrain.Terrain;
-import net.macmv.tankbattles.terrain.Tile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +26,7 @@ public class ServerGame implements Game {
   public ServerGame() {
     tickStartTime = System.currentTimeMillis();
     lastCollisionUpdate = System.currentTimeMillis();
-    collisionManager = new CollisionManager(false);
+    collisionManager = new CollisionManager(this, false);
     terrain = new Terrain(this, "maps/tmp.map", false);
   }
 
@@ -88,10 +87,10 @@ public class ServerGame implements Game {
     lastCollisionUpdate = System.currentTimeMillis();
 //    System.out.println("Speed: " + speed);
     if (speed < allowedSpeed * 1.5) { // 1.5 is to account for lag; this may allow players to speed hack, but we need to worry about slow connections more
-      players.get(p.getId()).moveTo(newPos, p.getDirection());
+      players.get(p.getId()).setPos(newPos, p.getDirection());
 //      System.out.println("Sending player move res at newPos: " + newPos);
     } else {
-      players.get(p.getId()).moveTo(oldPos, p.getDirection());
+      players.get(p.getId()).setPos(oldPos, p.getDirection());
 //      System.out.println("Sending player move res at oldPos: " + oldPos);
     }
     PlayerMoveRes.Builder res = PlayerMoveRes.newBuilder();
@@ -116,8 +115,8 @@ public class ServerGame implements Game {
 
   private void addProjectile(int id, Projectile projectile) {
     projectiles.put(id, projectile);
-    projectile.cl = new CollisionManager.OnContact();
-    projectile.cl.onContactStarted(projectile.getBody(), null);
+//    projectile.cl = new CollisionManager.OnContact();
+//    projectile.cl.onContactStarted(projectile.getHitbox(), null);
   }
 
   public PlayerFireRes generateFireRes() {
@@ -152,10 +151,10 @@ public class ServerGame implements Game {
       }
       outputString.add(line);
     }
-    HashMap<Vector3, Tile> tiles = terrain.getTiles();
-    tiles.forEach((pos, tile) -> {
-      outputString.get((int) pos.y).set((int) pos.z, 'T');
-    });
+//    HashMap<Vector3, Tile> tiles = terrain.getTiles();
+//    tiles.forEach((pos, tile) -> {
+//      outputString.get((int) pos.y).set((int) pos.z, 'T');
+//    });
     players.forEach((id, p) -> {
       outputString.get((int) p.getPos().y).set((int) p.getPos().z, 'P');
     });

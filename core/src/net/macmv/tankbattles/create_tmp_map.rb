@@ -12,28 +12,23 @@
 require_relative "../../../../build/generated/source/proto/ruby/lib/proto/mainProto_pb.rb"
 
 width = 10
-height = 1
+max_height = 0.5 # is 0 to max_height
 length = 20
 
 map = TerrainMap.new
 map.width = width
-map.height = height
 map.length = length
 
-height.times do |y|
-  plane = TerrainMap::Plane.new
-  width.times do |x|
-    row = TerrainMap::Plane::Row.new
-    length.times do |z|
-      tile = TerrainMap::Tile.new
-      pos = Point3.new(x: x, y: y, z: z)
-      tile.type = TerrainMap::Tile::Type::GRASS
-      tile.pos = pos
-      row.tiles[z] = tile
-    end
-    plane.rows[x] = row
+width.times do |x|
+  row = TerrainMap::Row.new
+  length.times do |z|
+    point = TerrainMap::Point.new
+    pos = Point3.new(x: x, y: rand * max_height, z: z)
+    point.type = TerrainMap::Point::Type::GRASS
+    point.pos = pos
+    row.points[z] = point
   end
-  map.planes[y] = plane
+  map.rows[x] = row
 end
 
 puts map

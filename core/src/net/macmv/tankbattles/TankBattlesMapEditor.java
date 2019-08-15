@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import net.macmv.tankbattles.mapeditor.MapEditorGame;
 import net.macmv.tankbattles.render.Render;
 
 public class TankBattlesMapEditor extends ApplicationAdapter implements InputProcessor {

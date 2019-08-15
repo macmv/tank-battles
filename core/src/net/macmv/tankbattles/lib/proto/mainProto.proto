@@ -100,19 +100,16 @@ message Projectile {
 }
 
 message TerrainMap {
-  map<int32, Plane> planes = 1;
+  map<int32, Row> rows = 1;
   int32 width = 2;
   int32 length = 3;
   int32 height = 4;
 
-  message Plane {
-    map<int32, Row> rows = 1;
-    message Row {
-      map<int32, Tile> tiles = 1;
-    }
+  message Row {
+    map<int32, Point> points = 1;
   }
 
-  message Tile {
+  message Point {
     Type type = 1;
     Point3 pos = 2;
 
